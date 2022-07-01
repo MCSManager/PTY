@@ -22,5 +22,5 @@ func main() {
 	}
 	defer Pty.Close()
 	Pty.Setsize(50, 50)
-	Pty.HandleStd()
+	Pty.HandleStdIO()
 }
