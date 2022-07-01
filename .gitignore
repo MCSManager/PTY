@@ -5,6 +5,7 @@
 *.so
 *.dylib
 *.log
+.idea
 !winpty-agent.exe
 !winpty.dll
 # Test binary, built with `go test -c`
