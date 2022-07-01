@@ -22,7 +22,14 @@ func main() {
 		fmt.Printf("[MCSMANAGER-TTY] Process Start Error:%s\n", err)
 		os.Exit(-1)
 	}
-	defer Pty.Close()
+
+	defer func() {
+		Pty.Close()
+		if err := recover(); err != nil {
+			fmt.Printf("[MCSMANAGER-TTY] Recover Point: %s", err)
+		}
+	}()
+
 	Pty.Setsize(50, 50)
 	Pty.HandleStdIO()
 }
