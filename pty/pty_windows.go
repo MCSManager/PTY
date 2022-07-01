@@ -15,7 +15,7 @@ type Pty struct {
 	StdOut *os.File
 }
 
-type Getdata struct {
+type DataProtocol struct {
 	Type int    `json:"type"`
 	Data string `json:"data"`
 }
