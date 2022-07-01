@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
 
 	"github.com/MCSManager/tty/pty"
 )
@@ -18,7 +19,8 @@ func main() {
 	flag.Parse()
 	Pty, err := pty.Start(Dir, Cmd)
 	if err != nil {
-		fmt.Println("pty start err:", err)
+		fmt.Printf("[MCSMANAGER-TTY] Process Start Error:%s\n", err)
+		os.Exit(-1)
 	}
 	defer Pty.Close()
 	Pty.Setsize(50, 50)

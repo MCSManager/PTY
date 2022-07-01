@@ -28,7 +28,7 @@ func (pty *Pty) handleStdIn() {
 		input, _ = inputReader.ReadString('\n')
 		err = json.Unmarshal([]byte(input), &getdata)
 		if err != nil {
-			fmt.Printf("Unmarshall json err:%v\n,original data:%#v\n", err, input)
+			fmt.Printf("[MCSMANAGER-TTY] Unmarshall json err:%v\n,original data:%#v\n", err, input)
 			continue
 		}
 		switch getdata.Type {
@@ -37,13 +37,13 @@ func (pty *Pty) handleStdIn() {
 		case 2:
 			cols, err = strconv.Atoi(strings.Split(getdata.Data, ",")[0])
 			if err != nil {
-				fmt.Println("SetSize err:", err)
-				panic(err)
+				fmt.Println("[MCSMANAGER-TTY] SetSize err:", err)
+				continue
 			}
 			rows, err = strconv.Atoi(strings.Split(getdata.Data, ",")[1])
 			if err != nil {
-				fmt.Println("SetSize err:", err)
-				panic(err)
+				fmt.Println("[MCSMANAGER-TTY] SetSize err:", err)
+				continue
 			}
 			pty.Setsize(uint32(cols), uint32(rows))
 		case 3:
