@@ -23,14 +23,12 @@ func (pty *Pty) handleStdIn() {
 	for {
 		var err error
 		var protocol DataProtocol
-
 		bufferText, _ := inputReader.ReadString('\n')
 		err = json.Unmarshal([]byte(bufferText), &protocol)
 		if err != nil {
 			fmt.Printf("[MCSMANAGER-TTY] Unmarshall json err:%v\n,original data:%#v\n", err, bufferText)
 			continue
 		}
-
 		switch protocol.Type {
 		case 1:
 			pty.StdIn.Write([]byte(protocol.Data))

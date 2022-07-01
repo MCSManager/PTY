@@ -26,7 +26,7 @@ func main() {
 	defer func() {
 		Pty.Close()
 		if err := recover(); err != nil {
-			fmt.Printf("[MCSMANAGER-TTY] Recover Point: %s", err)
+			fmt.Printf("[MCSMANAGER-TTY] Recover Point Error: %s", err)
 		}
 	}()
 
