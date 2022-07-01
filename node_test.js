@@ -25,19 +25,22 @@ p.stdout.on("data", (v) => {
 });
 
 process.stdin.on("data", (v) => {
-    if (v.toString().includes("exit0")) {
+    let text = v.toString()
+    if (text.toString().includes("exit0")) {
         return p.stdin.write(JSON.stringify({
             type: 3,
             data: ""
         })+"\n");
     }
-    if (v.toString().includes("resize")) {
+    if (text.toString().includes("resize")) {
+        const arr = text.split(" ").slice(1)
+        console.log("RESIZE WIN:",`${arr[0]} ${arr[1]}`)
         return p.stdin.write(JSON.stringify({
             type: 2,
-            data: "10,10"
+            data: `${arr[0]},${arr[1]}`
         })+"\n");
     }
-    let text = JSON.stringify({
+     text = JSON.stringify({
         type: 1,
         data: v.toString()
     })
