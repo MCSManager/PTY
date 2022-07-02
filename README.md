@@ -5,26 +5,24 @@
 [![--](https://img.shields.io/badge/Support-Windows/Linux-yellow.svg)](https://github.com/MCSManager)
 [![--](https://img.shields.io/badge/License-MIT-red.svg)](https://github.com/MCSManager)
 
+
+中文 | [English](README_EN.md)
+
 <br />
 
-What is PTY?
+什么是 PTY/TTY？
 ------
 tty = "teletype"，pty = "pseudo-teletype"
 
-In UNIX, /dev/tty* is any device that acts like a "teletype"
-
-A pty is a pseudotty, a device entry that acts like a terminal to the process reading and writing there, 
-but is managed by something else. 
-They first appeared for X Window and screen and the like,
-where you needed something that acted like a terminal but could be used from another program.
+众所周知，程序拥有输入与输出流，但是数据流与显示器之间有一个区别，那便是缺少行和高的排列维度。简而言之，PTY 的中文意义就是伪装设备终端，让我们的程序伪装成一个拥有固定高宽的显示器，接受来自程序的输出内容。
 
 <br />
 
 
-Quickstart
+使用
 -----
 
-Start a PTY and start cmd.exe
+开启一个 PTY 并执行命令
 
 ```bash
 go build main.go
@@ -33,11 +31,13 @@ go build main.go
 
 Ping google.com
 
+这段数据需要向程序的输入流发送，末尾跟上 `\n` 符
+
 ```bash
 {"type":1,"data":"ping google.com\r\n"}\n
 ```
 
-Resize pty window size:
+重设 PTY 窗口大小
 
 ```
 {"type":2,"data":"20,20"}\n
@@ -47,23 +47,22 @@ Resize pty window size:
 
 MCSManager
 ------
-MCSManager is Distributed, out-of-the-box, supports docker, 
-supports Minecraft and other game server management panel for the Chinese market.
+MCSManager 是一款开源，分布式，开箱即用，支持 Minecraft 和其他控制台应用的程序管理面板。
 
-This application will provide PTY functionality for MCSManager,
-it is specifically designed for MCSManager, 
-you can also try porting to your own application.
+这个程序是专门为了 MCSManager 而设计，您也可以尝试嵌入到您自己的程序中。
 
 More info: [https://github.com/mcsmanager](https://github.com/mcsmanager)
 
 <br />
 
-Contributing
+贡献
 ------
-Interested in getting involved? 
 
-- If you want to add a new feature, please create an issue first to describe the new feature, as well as the implementation approach. Once a proposal is accepted, create an implementation of the new features and submit it as a pull request.
-- If you are just fixing bugs, you can simply submit PR.
+此程序属于 MCSManager 的最重要的核心功能之一，非必要不新增功能。
+
+- 如果您想为这个项目提供新功能，那您必须开一个 `issue` 说明此功能，并提供编程思路，我们一起经过讨论后再决定是否开发
+
+- 如果您是修复 BUG，可以直接提交 PR 并说明情况
 
 <br />
 
@@ -71,6 +70,6 @@ Interested in getting involved?
 MIT license
 ------
 
-Released under the [MIT License](https://opensource.org/licenses/MIT).
+遵循 [MIT License](https://opensource.org/licenses/MIT) 开源协议。
 
-Copyright 2022 [zijiren233](https://github.com/zijiren233) and contributors.
+版权所有 [zijiren233](https://github.com/zijiren233) 和贡献者们。
