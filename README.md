@@ -11,7 +11,7 @@ What is PTY?
 ------
 tty = "teletype"，pty = "pseudo-teletype"
 
-In UNIX, /dev/tty* is any device that acts like a "teletype"
+In UNIX, /dev/tty* is any device that like a "teletype"
 
 <br />
 
