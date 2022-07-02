@@ -13,11 +13,6 @@ tty = "teletype"，pty = "pseudo-teletype"
 
 In UNIX, /dev/tty* is any device that acts like a "teletype"
 
-A pty is a pseudotty, a device entry that acts like a terminal to the process reading and writing there, 
-but is managed by something else. 
-They first appeared for X Window and screen and the like,
-where you needed something that acted like a terminal but could be used from another program.
-
 <br />
 
 
