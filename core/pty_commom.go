@@ -29,7 +29,7 @@ func (pty *Pty) handleStdIn() {
 	inputReader := bufio.NewReader(os.Stdin)
 	for {
 		bufferText, err = inputReader.ReadString('\n')
-		if err != nil {
+		if err != nil && err != io.EOF {
 			fmt.Printf("[MCSMANAGER-TTY] ReadString err: %v", err)
 			continue
 		}
@@ -52,20 +52,11 @@ func (pty *Pty) handleStdIn() {
 
 func (pty *Pty) handleStdOut() {
 	var err error
-	var n int
-	buf := make([]byte, 4*2048)
-	reader := bufio.NewReader(pty.StdOut)
 	stdout := colorable.NewColorableStdout()
-	for {
-		n, err = reader.Read(buf)
-		if err != nil && err != io.EOF {
-			fmt.Printf("[MCSMANAGER-TTY] Failed to read from pty master: %v\n", err)
-			continue
-		} else if err == io.EOF {
-			pty.Close()
-			os.Exit(-1)
-		}
-		stdout.Write(buf[:n])
+	_, err = io.Copy(stdout, pty.StdOut)
+	if err != nil {
+		fmt.Printf("[MCSMANAGER-TTY] Failed to read from pty master: %v\n", err)
+		return
 	}
 }
 
@@ -79,7 +70,7 @@ func resizeWindow(pty *Pty, sizeText string) {
 	cols, err1 := strconv.Atoi(arr[0])
 	rows, err2 := strconv.Atoi(arr[1])
 	if err1 != nil || err2 != nil {
-		fmt.Printf("[MCSMANAGER-TTY] Failed to set window size: %v\n%v\n", err1, err2)
+		fmt.Printf("[MCSMANAGER-TTY] Failed to set window size,original data:%#v\n", sizeText)
 		return
 	}
 	pty.Setsize(uint32(cols), uint32(rows))

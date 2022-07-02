@@ -3,6 +3,7 @@
 package core
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 
@@ -20,7 +21,19 @@ func getExecutableFilePath() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return filepath.Dir(ex), nil
+	if executableFileExists(filepath.Dir(ex)+"/winpty-agent.exe") && executableFileExists(filepath.Dir(ex)+"/winpty.dll") {
+		return filepath.Dir(ex), nil
+	} else {
+		return filepath.Dir(ex), errors.New("[MCSMANAGER-TTY] ExecutableFile {winpty-agent.exe,winpty.dll} does not exist")
+	}
+}
+
+func executableFileExists(path string) bool {
+	_, err := os.Stat(path)
+	if err != nil {
+		return os.IsExist(err)
+	}
+	return true
 }
 
 func Start(dir, command string) (*Pty, error) {
