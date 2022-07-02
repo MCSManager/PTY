@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/MCSManager/tty/core"
+	"github.com/MCSManager/pty/core"
 )
 
 var Dir, Cmd string

@@ -1,4 +1,4 @@
-module github.com/MCSManager/tty
+module github.com/MCSManager/pty
 
 go 1.18
 
