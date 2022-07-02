@@ -28,10 +28,14 @@ func (pty *Pty) handleStdIn() {
 	var bufferText string
 	inputReader := bufio.NewReader(os.Stdin)
 	for {
-		bufferText, _ = inputReader.ReadString('\n')
+		bufferText, err = inputReader.ReadString('\n')
+		if err != nil {
+			fmt.Printf("[MCSMANAGER-TTY] ReadString err: %v", err)
+			continue
+		}
 		err = json.Unmarshal([]byte(bufferText), &protocol)
 		if err != nil {
-			fmt.Printf("[MCSMANAGER-TTY] Unmarshall json err:%v\n,original data:%#v\n", err, bufferText)
+			fmt.Printf("[MCSMANAGER-TTY] Unmarshall json err: %v\n,original data: %#v\n", err, bufferText)
 			continue
 		}
 		switch protocol.Type {
@@ -68,6 +72,10 @@ func (pty *Pty) handleStdOut() {
 // Set the PTY window size based on the text
 func resizeWindow(pty *Pty, sizeText string) {
 	arr := strings.Split(sizeText, ",")
+	if len(arr) != 2 {
+		fmt.Printf("[MCSMANAGER-TTY] Set tty size data failed,original data:%#v\n", sizeText)
+		return
+	}
 	cols, err1 := strconv.Atoi(arr[0])
 	rows, err2 := strconv.Atoi(arr[1])
 	if err1 != nil || err2 != nil {
