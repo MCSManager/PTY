@@ -1,6 +1,6 @@
 //go:build windows
 
-package pty
+package core
 
 import (
 	"os"

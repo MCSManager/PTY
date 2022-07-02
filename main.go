@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/MCSManager/tty/pty"
+	"github.com/MCSManager/tty/core"
 )
 
 var Dir, Cmd string
@@ -17,7 +17,7 @@ func init() {
 
 func main() {
 	flag.Parse()
-	Pty, err := pty.Start(Dir, Cmd)
+	Pty, err := core.Start(Dir, Cmd)
 	if err != nil {
 		fmt.Printf("[MCSMANAGER-TTY] Process Start Error:%s\n", err)
 		os.Exit(-1)
