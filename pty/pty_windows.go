@@ -15,11 +15,6 @@ type Pty struct {
 	StdOut *os.File
 }
 
-type DataProtocol struct {
-	Type int    `json:"type"`
-	Data string `json:"data"`
-}
-
 func getExecutableFilePath() (string, error) {
 	ex, err := os.Executable()
 	if err != nil {

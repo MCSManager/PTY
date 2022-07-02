@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -13,17 +12,23 @@ import (
 	"github.com/mattn/go-colorable"
 )
 
+type DataProtocol struct {
+	Type int    `json:"type"`
+	Data string `json:"data"`
+}
+
 func (pty *Pty) HandleStdIO() {
-	go pty.handleStdOut()
-	pty.handleStdIn()
+	go pty.handleStdIn()
+	pty.handleStdOut()
 }
 
 func (pty *Pty) handleStdIn() {
+	var err error
+	var protocol DataProtocol
+	var bufferText string
 	inputReader := bufio.NewReader(os.Stdin)
 	for {
-		var err error
-		var protocol DataProtocol
-		bufferText, _ := inputReader.ReadString('\n')
+		bufferText, _ = inputReader.ReadString('\n')
 		err = json.Unmarshal([]byte(bufferText), &protocol)
 		if err != nil {
 			fmt.Printf("[MCSMANAGER-TTY] Unmarshall json err:%v\n,original data:%#v\n", err, bufferText)
@@ -32,15 +37,11 @@ func (pty *Pty) handleStdIn() {
 		switch protocol.Type {
 		case 1:
 			pty.StdIn.Write([]byte(protocol.Data))
-			continue
 		case 2:
 			resizeWindow(pty, protocol.Data)
-			continue
 		case 3:
 			pty.StdIn.Write([]byte{3})
-			continue
 		default:
-			continue
 		}
 	}
 }
@@ -48,13 +49,13 @@ func (pty *Pty) handleStdIn() {
 func (pty *Pty) handleStdOut() {
 	var err error
 	var n int
-	buf := make([]byte, 2*2048)
+	buf := make([]byte, 4*2048)
 	reader := bufio.NewReader(pty.StdOut)
 	stdout := colorable.NewColorableStdout()
 	for {
 		n, err = reader.Read(buf)
 		if err != nil && err != io.EOF {
-			log.Printf("[MCSMANAGER-TTY] Failed to read from pty master: %s", err)
+			fmt.Printf("[MCSMANAGER-TTY] Failed to read from pty master: %v\n", err)
 			continue
 		} else if err == io.EOF {
 			pty.Close()
@@ -68,9 +69,9 @@ func (pty *Pty) handleStdOut() {
 func resizeWindow(pty *Pty, sizeText string) {
 	arr := strings.Split(sizeText, ",")
 	cols, err1 := strconv.Atoi(arr[0])
-	rows, err2 := strconv.Atoi(arr[0])
+	rows, err2 := strconv.Atoi(arr[1])
 	if err1 != nil || err2 != nil {
-		log.Printf("[MCSMANAGER-TTY] Failed to set window size: %s", err1)
+		fmt.Printf("[MCSMANAGER-TTY] Failed to set window size: %v\n%v\n", err1, err2)
 		return
 	}
 	pty.Setsize(uint32(cols), uint32(rows))

@@ -18,11 +18,6 @@ type Pty struct {
 	StdOut *os.File
 }
 
-type DataProtocol struct {
-	Type int    `json:"type"`
-	Data string `json:"data"`
-}
-
 func Start(dir, command string) (*Pty, error) {
 	cmd := exec.Command(command)
 	cmd.Dir = dir
