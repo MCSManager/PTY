@@ -10,7 +10,10 @@ import (
 	"strings"
 
 	"github.com/mattn/go-colorable"
+	"golang.org/x/term"
 )
+
+var PtySize = ""
 
 type DataProtocol struct {
 	Type int    `json:"type"`
@@ -23,6 +26,14 @@ func (pty *Pty) HandleStdIO() {
 }
 
 func (pty *Pty) handleStdIn() {
+	if PtySize == "" {
+		pty.noSizeFlag()
+	} else {
+		pty.existSizeFlag()
+	}
+}
+
+func (pty *Pty) noSizeFlag() {
 	var err error
 	var protocol DataProtocol
 	var bufferText string
@@ -38,7 +49,7 @@ func (pty *Pty) handleStdIn() {
 		case 1:
 			pty.StdIn.Write([]byte(protocol.Data))
 		case 2:
-			resizeWindow(pty, &protocol.Data)
+			pty.ResizeWindow(&protocol.Data)
 		case 3:
 			pty.StdIn.Write([]byte{3})
 		default:
@@ -46,17 +57,25 @@ func (pty *Pty) handleStdIn() {
 	}
 }
 
+func (pty *Pty) existSizeFlag() {
+	oldState, err := term.MakeRaw(int(os.Stdin.Fd()))
+	if err != nil {
+		panic(err)
+	}
+	defer func() { _ = term.Restore(int(os.Stdin.Fd()), oldState) }()
+	io.Copy(pty.StdIn, os.Stdin)
+}
+
 func (pty *Pty) handleStdOut() {
 	stdout := colorable.NewColorableStdout()
 	_, err := io.Copy(stdout, pty.StdOut)
 	if err != nil {
 		fmt.Printf("[MCSMANAGER-TTY] Failed to read from pty master: %v\n", err)
-		return
 	}
 }
 
 // Set the PTY window size based on the text
-func resizeWindow(pty *Pty, sizeText *string) {
+func (pty *Pty) ResizeWindow(sizeText *string) {
 	arr := strings.Split(*sizeText, ",")
 	if len(arr) != 2 {
 		fmt.Printf("[MCSMANAGER-TTY] Set tty size data failed,original data:%#v\n", *sizeText)

@@ -11,8 +11,9 @@ import (
 var Dir, Cmd string
 
 func init() {
-	flag.StringVar(&Dir, "dir", "", "command work path")
-	flag.StringVar(&Cmd, "cmd", "", "command")
+	flag.StringVar(&Dir, "dir", ".", "command work path")
+	flag.StringVar(&Cmd, "cmd", "cmd.exe", "command")
+	flag.StringVar(&core.PtySize, "size", "", "command")
 }
 
 func main() {
@@ -24,6 +25,10 @@ func main() {
 	}
 	defer Pty.Close()
 
-	Pty.Setsize(50, 50)
+	if core.PtySize == "" {
+		Pty.Setsize(50, 50)
+	} else {
+		Pty.ResizeWindow(&core.PtySize)
+	}
 	Pty.HandleStdIO()
 }
