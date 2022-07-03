@@ -42,7 +42,7 @@ func (pty *Pty) noSizeFlag() {
 		bufferText, _ = inputReader.ReadString('\n')
 		err = json.Unmarshal([]byte(bufferText), &protocol)
 		if err != nil {
-			fmt.Printf("[MCSMANAGER-TTY] Unmarshall json err: %v\n,original data: %#v\n", err, bufferText)
+			fmt.Printf("[MCSMANAGER-TTY] Unmarshall json err: %v\noriginal data: %#v\n", err, bufferText)
 			continue
 		}
 		switch protocol.Type {
