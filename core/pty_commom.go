@@ -28,11 +28,7 @@ func (pty *Pty) handleStdIn() {
 	var bufferText string
 	inputReader := bufio.NewReader(os.Stdin)
 	for {
-		bufferText, err = inputReader.ReadString('\n')
-		if err != nil && err != io.EOF {
-			fmt.Printf("[MCSMANAGER-TTY] ReadString err: %v", err)
-			continue
-		}
+		bufferText, _ = inputReader.ReadString('\n')
 		err = json.Unmarshal([]byte(bufferText), &protocol)
 		if err != nil {
 			fmt.Printf("[MCSMANAGER-TTY] Unmarshall json err: %v\n,original data: %#v\n", err, bufferText)
@@ -42,7 +38,7 @@ func (pty *Pty) handleStdIn() {
 		case 1:
 			pty.StdIn.Write([]byte(protocol.Data))
 		case 2:
-			resizeWindow(pty, protocol.Data)
+			resizeWindow(pty, &protocol.Data)
 		case 3:
 			pty.StdIn.Write([]byte{3})
 		default:
@@ -51,9 +47,8 @@ func (pty *Pty) handleStdIn() {
 }
 
 func (pty *Pty) handleStdOut() {
-	var err error
 	stdout := colorable.NewColorableStdout()
-	_, err = io.Copy(stdout, pty.StdOut)
+	_, err := io.Copy(stdout, pty.StdOut)
 	if err != nil {
 		fmt.Printf("[MCSMANAGER-TTY] Failed to read from pty master: %v\n", err)
 		return
@@ -61,16 +56,16 @@ func (pty *Pty) handleStdOut() {
 }
 
 // Set the PTY window size based on the text
-func resizeWindow(pty *Pty, sizeText string) {
-	arr := strings.Split(sizeText, ",")
+func resizeWindow(pty *Pty, sizeText *string) {
+	arr := strings.Split(*sizeText, ",")
 	if len(arr) != 2 {
-		fmt.Printf("[MCSMANAGER-TTY] Set tty size data failed,original data:%#v\n", sizeText)
+		fmt.Printf("[MCSMANAGER-TTY] Set tty size data failed,original data:%#v\n", *sizeText)
 		return
 	}
 	cols, err1 := strconv.Atoi(arr[0])
 	rows, err2 := strconv.Atoi(arr[1])
 	if err1 != nil || err2 != nil {
-		fmt.Printf("[MCSMANAGER-TTY] Failed to set window size,original data:%#v\n", sizeText)
+		fmt.Printf("[MCSMANAGER-TTY] Failed to set window size,original data:%#v\n", *sizeText)
 		return
 	}
 	pty.Setsize(uint32(cols), uint32(rows))
