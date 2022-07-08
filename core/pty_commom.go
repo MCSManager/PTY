@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/mattn/go-colorable"
-	"golang.org/x/term"
 )
 
 var PtySize = ""
@@ -58,11 +57,14 @@ func (pty *Pty) noSizeFlag() {
 }
 
 func (pty *Pty) existSizeFlag() {
-	oldState, err := term.MakeRaw(int(os.Stdin.Fd()))
-	if err != nil {
-		panic(err)
-	}
-	defer func() { _ = term.Restore(int(os.Stdin.Fd()), oldState) }()
+	// 删除 stdin cache，达到系统信号直接传递到 pty
+	// 此方法操作到了文件描述符，不适用于父子进程操作
+	// oldState, err := term.MakeRaw(int(os.Stdin.Fd()))
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// defer func() { _ = term.Restore(int(os.Stdin.Fd()), oldState) }()
+
 	io.Copy(pty.StdIn, os.Stdin)
 }
 

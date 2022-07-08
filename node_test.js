@@ -51,6 +51,7 @@ process.stdin.on("data", (v) => {
     }
 
     if (text.toString().includes("exit0")) {
+        console.log("EXIT")
         return p.stdin.write(JSON.stringify({
             type: 3,
             data: ""
