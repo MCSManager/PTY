@@ -1,4 +1,4 @@
-const {spawn} = require("child_process");
+const { spawn } = require("child_process");
 const p = spawn(
     "main.exe",
     [
@@ -6,6 +6,8 @@ const p = spawn(
         ".",
         "-cmd",
         'cmd.exe',
+        "-size",
+        "50,50"
     ],
     {
         cwd: ".",
