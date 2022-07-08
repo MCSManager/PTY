@@ -22,7 +22,23 @@ tty = "teletype"，pty = "pseudo-teletype"
 使用
 -----
 
-开启一个 PTY 并执行命令
+开一个 PTY 并执行命令，设置固定窗口大小，IO 流直接转发。
+
+```bash
+go build main.go
+./main -dir "." -cmd "bash" -size 50,50
+```
+
+
+接下来您会得到一个设置好大小宽度的窗口，并且您可以像 SSH 终端一样，进行任何交互。
+
+```
+ping google.com
+top
+htop
+```
+
+开启一个 PTY 并执行命令，并接受动态指令调整。
 
 ```bash
 go build main.go
