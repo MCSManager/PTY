@@ -25,20 +25,39 @@ where you needed something that acted like a terminal but could be used from ano
 Quickstart
 -----
 
-Start a PTY and start cmd.exe
+
+1. Start a PTY and set window size.
+
+```bash
+go build main.go
+./main -dir "." -cmd "bash" -size 50,50
+```
+
+You can execute any command, just like the SSH terminal.
+
+```
+ping google.com
+top
+htop
+```
+
+<br />
+
+
+2. Start a PTY and dynamically change the window size.
 
 ```bash
 go build main.go
 ./main.exe -dir "." -cmd "cmd.exe"
 ```
 
-Ping google.com
+Ping google.com.
 
 ```bash
 {"type":1,"data":"ping google.com\r\n"}\n
 ```
 
-Resize pty window size:
+Resize pty window size.
 
 ```
 {"type":2,"data":"20,20"}\n
