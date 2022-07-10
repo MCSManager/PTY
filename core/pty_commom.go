@@ -70,10 +70,7 @@ func (pty *Pty) existSizeFlag() {
 
 func (pty *Pty) handleStdOut() {
 	stdout := colorable.NewColorableStdout()
-	_, err := io.Copy(stdout, pty.StdOut)
-	if err != nil {
-		fmt.Printf("[MCSMANAGER-TTY] Failed to read from pty master: %v\n", err)
-	}
+	io.Copy(stdout, pty.StdOut)
 }
 
 // Set the PTY window size based on the text
