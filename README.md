@@ -24,7 +24,7 @@ tty = "teletype"，pty = "pseudo-teletype"
 
 ```bash
 go build main.go
-./main -dir "." -cmd ["bash"] -size 50,50
+./main -dir "." -cmd '["bash"]' -size 50,50
 ```
 
 接下来您会得到一个设置好大小宽度的窗口，并且您可以像 SSH 终端一样，进行任何交互。
@@ -41,7 +41,7 @@ htop
 
 ```bash
 go build main.go
-./main.exe -dir "." -cmd ["cmd.exe"]
+./main.exe -dir "." -cmd '["cmd.exe"]'
 ```
 
 Ping google.com
