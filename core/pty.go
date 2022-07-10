@@ -4,6 +4,8 @@
 package core
 
 import (
+	"encoding/json"
+	"fmt"
 	"os"
 	"os/exec"
 	"syscall"
@@ -19,7 +21,9 @@ type Pty struct {
 }
 
 func Start(dir, command string) (*Pty, error) {
-	cmd := exec.Command(command)
+	var _cmd cmdjson
+	json.Unmarshal([]byte(fmt.Sprintf(`{"cmd":%s}`, command)), &_cmd)
+	cmd := exec.Command(_cmd.Cmd[0], _cmd.Cmd[1:]...)
 	cmd.Dir = dir
 	cmd.Env = append(os.Environ(), "TERM=xterm")
 	tty, err := opty.Start(cmd)

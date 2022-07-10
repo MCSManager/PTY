@@ -3,7 +3,9 @@
 package core
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -40,6 +42,12 @@ func Start(dir, command string) (*Pty, error) {
 	path, err := getExecutableFilePath()
 	if err != nil {
 		return nil, err
+	}
+	var _cmd cmdjson
+	json.Unmarshal([]byte(fmt.Sprintf(`{"cmd":%s}`, command)), &_cmd)
+	command = ""
+	for _, v := range _cmd.Cmd {
+		command += fmt.Sprintf("%s ", v)
 	}
 	tty, err := winpty.OpenWithOptions(winpty.Options{
 		DLLPrefix: path,

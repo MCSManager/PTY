@@ -13,7 +13,11 @@ var Dir, Cmd string
 func init() {
 	flag.StringVar(&Dir, "dir", "", "command work path")
 	flag.StringVar(&Cmd, "cmd", "", "command")
-	flag.StringVar(&core.PtySize, "size", "", "command")
+	flag.StringVar(&core.PtySize, "size", "", "Initialize pty size, stdin will be forwarded directly")
+}
+
+type cmdjson struct {
+	Cmd []string `json:"cmd"`
 }
 
 func main() {

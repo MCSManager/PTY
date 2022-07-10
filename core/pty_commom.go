@@ -19,6 +19,10 @@ type DataProtocol struct {
 	Data string `json:"data"`
 }
 
+type cmdjson struct {
+	Cmd []string `json:"cmd"`
+}
+
 func (pty *Pty) HandleStdIO() {
 	go pty.handleStdIn()
 	pty.handleStdOut()
@@ -42,6 +46,7 @@ func (pty *Pty) noSizeFlag() {
 		err = json.Unmarshal([]byte(bufferText), &protocol)
 		if err != nil {
 			fmt.Printf("[MCSMANAGER-TTY] Unmarshall json err: %v\noriginal data: %#v\n", err, bufferText)
+			fmt.Println("[MCSMANAGER-TTY] 正在使用 json 格式命令,具体格式请查看 github.com/MCSManager/pty")
 			continue
 		}
 		switch protocol.Type {
