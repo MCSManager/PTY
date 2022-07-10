@@ -27,7 +27,7 @@ where you needed something that acted like a terminal but could be used from ano
 
 ```bash
 go build main.go
-./main -dir "." -cmd ["bash"] -size 50,50
+./main -dir "." -cmd '["bash"]' -size 50,50
 ```
 
 You can execute any command, just like the SSH terminal.
@@ -44,7 +44,7 @@ htop
 
 ```bash
 go build main.go
-./main.exe -dir "." -cmd ["cmd.exe"]
+./main.exe -dir "." -cmd '["cmd.exe"]'
 ```
 
 Ping google.com.
