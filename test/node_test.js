@@ -1,16 +1,17 @@
 const { spawn } = require("child_process");
 
-const command = JSON.stringify(["cmd.exe", "/C", "TerrariaServer.exe"]);
+// const command = JSON.stringify(["cmd.exe", "/C", "TerrariaServer.exe"]);
+const command = JSON.stringify(['"C:\\Program Files\\Java\\jdk-17.0.2\\bin\\java"', "-jar", "paper-1.18.1-215.jar"]);
 
 const p = spawn(
     "./pty.exe",
     [
         "-dir",
-        "C:\\Users\\zijiren\\Desktop\\t",
+        ".",
         "-cmd",
         command,
         "-size",
-        "50,50",
+        "80,80",
     ],
     {
         cwd: ".",
@@ -30,6 +31,5 @@ p.stdout.on("data", (v) => {
 });
 
 process.stdin.on("data", (v) => {
-    let text = v.toString();
-    p.stdin.write(text);
+    p.stdin.write(v);
 });
