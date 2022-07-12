@@ -44,13 +44,13 @@ func Start(dir, command string) (*Pty, error) {
 		return nil, err
 	}
 	var _cmd cmdjson
-	fmt.Printf("[MCSMANAGER-TTY] Get the original command: {\"cmd\":%s}\n", command)
+	fmt.Printf("[MCSMANAGER-TTY] Original command: {\"cmd\":%s}\n", command)
 	json.Unmarshal([]byte(fmt.Sprintf(`{"cmd":%s}`, command)), &_cmd)
 	command = ""
 	for _, v := range _cmd.Cmd {
 		command += fmt.Sprintf("%s ", v)
 	}
-	fmt.Printf("[MCSMANAGER-TTY] Parse to command: %s\n", command)
+	fmt.Printf("[MCSMANAGER-TTY] Full command: %s\n", command)
 	tty, err := winpty.OpenWithOptions(winpty.Options{
 		DLLPrefix: path,
 		Command:   command,

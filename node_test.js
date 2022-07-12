@@ -1,12 +1,23 @@
 const { spawn } = require("child_process");
 
-const command = JSON.stringify(["cmd.exe"]);
+const command = JSON.stringify(["cmd.exe", "/C", "TerrariaServer.exe"]);
 
-const p = spawn("./pty.exe", ["-dir", ".", "-cmd", command, "-size", "50,50"], {
-    cwd: ".",
-    stdio: "pipe",
-    windowsHide: true,
-});
+const p = spawn(
+    "./pty.exe",
+    [
+        "-dir",
+        "C:\\Users\\zijiren\\Desktop\\t",
+        "-cmd",
+        command,
+        "-size",
+        "50,50",
+    ],
+    {
+        cwd: ".",
+        stdio: "pipe",
+        windowsHide: true,
+    }
+);
 
 if (!p.pid) throw new Error("[DEBUG] 启动失败");
 

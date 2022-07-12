@@ -22,14 +22,14 @@ type Pty struct {
 
 func Start(dir, command string) (*Pty, error) {
 	var _cmd cmdjson
-	fmt.Printf("[MCSMANAGER-TTY] Get the original command: {\"cmd\":%s}\n", command)
+	fmt.Printf("[MCSMANAGER-TTY] Original command: {\"cmd\":%s}\n", command)
 	json.Unmarshal([]byte(fmt.Sprintf(`{"cmd":%s}`, command)), &_cmd)
 	for k, v := range _cmd.Cmd {
 		if v[:1] == `"` && v[len(v)-1:] == `"` {
 			_cmd.Cmd[k] = v[1 : len(v)-1]
 		}
 	}
-	fmt.Printf("[MCSMANAGER-TTY] Parse to command: %v\n", _cmd.Cmd)
+	fmt.Printf("[MCSMANAGER-TTY] Full command: %s\n", _cmd.Cmd)
 	cmd := exec.Command(_cmd.Cmd[0], _cmd.Cmd[1:]...)
 	cmd.Dir = dir
 	cmd.Env = os.Environ()

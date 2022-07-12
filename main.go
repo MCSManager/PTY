@@ -14,10 +14,7 @@ func init() {
 	flag.StringVar(&Dir, "dir", "", "command work path")
 	flag.StringVar(&Cmd, "cmd", "", "command")
 	flag.StringVar(&core.PtySize, "size", "", "Initialize pty size, stdin will be forwarded directly")
-}
-
-type cmdjson struct {
-	Cmd []string `json:"cmd"`
+	flag.BoolVar(&core.Color, "color", false, "color able")
 }
 
 func main() {

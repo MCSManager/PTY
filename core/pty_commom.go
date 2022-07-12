@@ -13,6 +13,7 @@ import (
 )
 
 var PtySize = ""
+var Color = false
 
 type DataProtocol struct {
 	Type int    `json:"type"`
@@ -74,7 +75,12 @@ func (pty *Pty) existSizeFlag() {
 }
 
 func (pty *Pty) handleStdOut() {
-	stdout := colorable.NewColorableStdout()
+	var stdout io.Writer
+	if Color {
+		stdout = colorable.NewColorableStdout()
+	} else {
+		stdout = colorable.NewNonColorable(os.Stdout)
+	}
 	io.Copy(stdout, pty.StdOut)
 }
 
