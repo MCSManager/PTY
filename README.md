@@ -22,6 +22,12 @@ tty = "teletype"，pty = "pseudo-teletype"
 
 -   注意：-cmd 接收的是一个数组, 命令的参数以数组的形式传递，如：`["java","-jar","ser.jar","nogui"]`
 
+    -   程序解析后变成 `java -jar ser.jar nogui`
+
+-   如果要传入 `"C:\Program Files\Java\jre1.8.0_333\bin\java.exe"` 则输入 `["\"C:\\Program Files\\Java\\jre1.8.0_333\\bin\\java.exe\""]`
+
+    -   程序解析后变成 `"C:\Program Files\Java\jre1.8.0_333\bin\java.exe" -jar ser.jar nogui`
+
 ```bash
 go build main.go
 ./main -dir "." -cmd '["bash"]' -size 50,50

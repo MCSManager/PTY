@@ -1,7 +1,22 @@
 const { spawn } = require("child_process");
+
+const command = JSON.stringify([
+    '"C:\\Program Files\\Java\\jre1.8.0_333\\bin\\java.exe"',
+    "-jar",
+    "ser.jar",
+    "nogui",
+]);
+
 const p = spawn(
     "./pty.exe",
-    ["-dir", ".", "-cmd", '["cmd.exe"]', "-size", "50,50"],
+    [
+        "-dir",
+        "C:\\Users\\zijiren\\Desktop\\ser  aasd",
+        "-cmd",
+        command,
+        "-size",
+        "50,50",
+    ],
     {
         cwd: ".",
         stdio: "pipe",
