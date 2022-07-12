@@ -51,6 +51,9 @@ func Start(dir, command string) (*Pty, error) {
 		command += fmt.Sprintf("%s ", v)
 	}
 	fmt.Printf("[MCSMANAGER-TTY] Full command: %s\n", command)
+	if os.Chdir(dir) != nil {
+		fmt.Printf("[MCSMANAGER-TTY] Failed to change working directory: %v\n", err)
+	}
 	tty, err := winpty.OpenWithOptions(winpty.Options{
 		DLLPrefix: path,
 		Command:   command,
