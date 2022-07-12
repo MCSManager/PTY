@@ -18,3 +18,5 @@ pty.exe
 # vendor/
 cache/
 *.jar
+test/
+server/
