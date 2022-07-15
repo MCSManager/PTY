@@ -59,6 +59,19 @@ Resize pty window size.
 {"type":2,"data":"20,20"}\n
 ```
 
+## Flags:
+
+```
+  -cmd string
+        command
+  -color
+        colorable (default false)
+  -dir string
+        command work path (default ./)
+  -size string
+        Initialize pty size, stdin will be forwarded directly (default 50,50)
+```
+
 <br />
 
 ## MCSManager

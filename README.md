@@ -20,7 +20,7 @@ tty = "teletype"，pty = "pseudo-teletype"
 
 使用方法一：开一个 PTY 并执行命令，设置固定窗口大小，IO 流直接转发。
 
-- 注意：-cmd 接收的是一个数组, 命令的参数以数组的形式传递，如：`["java","-jar","ser.jar","nogui"]`
+-   注意：-cmd 接收的是一个数组, 命令的参数以数组的形式传递，如：`["java","-jar","ser.jar","nogui"]`
 
 ```bash
 go build main.go
@@ -56,6 +56,19 @@ Ping google.com
 
 ```
 {"type":2,"data":"20,20"}\n
+```
+
+## 参数：
+
+```
+  -cmd string
+        command
+  -color
+        colorable (default false)
+  -dir string
+        command work path (default ./)
+  -size string
+        Initialize pty size, stdin will be forwarded directly (default 50,50)
 ```
 
 <br />

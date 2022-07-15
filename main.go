@@ -12,10 +12,10 @@ import (
 var Dir, Cmd string
 
 func init() {
-	flag.StringVar(&Dir, "dir", "", "command work path")
+	flag.StringVar(&Dir, "dir", "", "command work path (default ./)")
 	flag.StringVar(&Cmd, "cmd", "", "command")
-	flag.StringVar(&core.PtySize, "size", "", "Initialize pty size, stdin will be forwarded directly")
-	flag.BoolVar(&core.Color, "color", false, "colorable")
+	flag.StringVar(&core.PtySize, "size", "", "Initialize pty size, stdin will be forwarded directly (default 50,50)")
+	flag.BoolVar(&core.Color, "color", false, "colorable (default false)")
 }
 
 func main() {
