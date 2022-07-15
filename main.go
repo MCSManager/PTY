@@ -15,17 +15,17 @@ func init() {
 	flag.StringVar(&Dir, "dir", "", "command work path")
 	flag.StringVar(&Cmd, "cmd", "", "command")
 	flag.StringVar(&core.PtySize, "size", "", "Initialize pty size, stdin will be forwarded directly")
-	flag.BoolVar(&core.Color, "color", false, "color able")
+	flag.BoolVar(&core.Color, "color", false, "colorable")
 }
 
 func main() {
 	flag.Parse()
+	fmt.Printf("[MCSMANAGER-TTY] Original command: %s\n", Cmd)
 
 	// 解析命令参数
 	cmd := []string{}
 	json.Unmarshal([]byte(Cmd), &cmd)
 
-	fmt.Printf("[MCSMANAGER-TTY] Original command: %s\n", cmd)
 	Pty, err := core.Start(Dir, cmd)
 	if err != nil {
 		fmt.Printf("[MCSMANAGER-TTY] Process Start Error:%s\n", err)
