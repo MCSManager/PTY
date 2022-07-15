@@ -49,6 +49,13 @@ func (pty *Pty) Setsize(cols, rows uint32) error {
 	})
 }
 
+func (pty *Pty) Close() error {
+	if err := pty.tty.Close(); err != nil {
+		return err
+	}
+	return pty.killChildProcess(pty.cmd)
+}
+
 func (pty *Pty) killChildProcess(c *exec.Cmd) error {
 	pgid, err := syscall.Getpgid(c.Process.Pid)
 	if err != nil {
@@ -58,11 +65,4 @@ func (pty *Pty) killChildProcess(c *exec.Cmd) error {
 	// Kill the whole process group.
 	syscall.Kill(-pgid, syscall.SIGTERM)
 	return c.Wait()
-}
-
-func (pty *Pty) Close() error {
-	if err := pty.tty.Close(); err != nil {
-		return err
-	}
-	return pty.killChildProcess(pty.cmd)
 }

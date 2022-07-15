@@ -17,26 +17,6 @@ type Pty struct {
 	StdOut *os.File
 }
 
-func getExecutableFilePath() (string, error) {
-	ex, err := os.Executable()
-	if err != nil {
-		return "", err
-	}
-	if executableFileExists(filepath.Dir(ex)+"/winpty-agent.exe") && executableFileExists(filepath.Dir(ex)+"/winpty.dll") {
-		return filepath.Dir(ex), nil
-	} else {
-		return filepath.Dir(ex), errors.New("[MCSMANAGER-TTY] ExecutableFile {winpty-agent.exe,winpty.dll} does not exist")
-	}
-}
-
-func executableFileExists(path string) bool {
-	_, err := os.Stat(path)
-	if err != nil {
-		return os.IsExist(err)
-	}
-	return true
-}
-
 func Start(dir string, command []string) (*Pty, error) {
 	path, err := getExecutableFilePath()
 	if err != nil {
@@ -58,6 +38,26 @@ func Start(dir string, command []string) (*Pty, error) {
 		Env:       os.Environ(),
 	})
 	return &Pty{tty: tty, StdIn: tty.StdIn, StdOut: tty.StdOut}, err
+}
+
+func getExecutableFilePath() (string, error) {
+	ex, err := os.Executable()
+	if err != nil {
+		return "", err
+	}
+	if executableFileExists(filepath.Dir(ex)+"/winpty-agent.exe") && executableFileExists(filepath.Dir(ex)+"/winpty.dll") {
+		return filepath.Dir(ex), nil
+	} else {
+		return filepath.Dir(ex), errors.New("[MCSMANAGER-TTY] ExecutableFile {winpty-agent.exe,winpty.dll} does not exist")
+	}
+}
+
+func executableFileExists(path string) bool {
+	_, err := os.Stat(path)
+	if err != nil {
+		return os.IsExist(err)
+	}
+	return true
 }
 
 func (pty *Pty) Write(p []byte) (n int, err error) {
