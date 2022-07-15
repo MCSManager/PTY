@@ -3,7 +3,6 @@
 package core
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -38,26 +37,23 @@ func executableFileExists(path string) bool {
 	return true
 }
 
-func Start(dir, command string) (*Pty, error) {
+func Start(dir string, command []string) (*Pty, error) {
 	path, err := getExecutableFilePath()
 	if err != nil {
 		return nil, err
 	}
-	var _cmd cmdjson
-	fmt.Printf("[MCSMANAGER-TTY] Original command: {\"cmd\":%s}\n", command)
-	json.Unmarshal([]byte(fmt.Sprintf(`{"cmd":%s}`, command)), &_cmd)
-	command = ""
-	for _, v := range _cmd.Cmd {
-		command += fmt.Sprintf("%s ", v)
+	var cmd string
+	for _, v := range command {
+		cmd += fmt.Sprintf("%s ", v)
 	}
-	fmt.Printf("[MCSMANAGER-TTY] Full command: %s\n", command)
+	fmt.Printf("[MCSMANAGER-TTY] Full command: %s\n", cmd)
 	if err = os.Chdir(dir); err != nil {
 		fmt.Printf("[MCSMANAGER-TTY] Failed to change working directory: %v\n", err)
 		panic(err)
 	}
 	tty, err := winpty.OpenWithOptions(winpty.Options{
 		DLLPrefix: path,
-		Command:   command,
+		Command:   cmd,
 		Dir:       dir,
 		Env:       os.Environ(),
 	})

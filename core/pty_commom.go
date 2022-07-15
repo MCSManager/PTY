@@ -20,10 +20,6 @@ type DataProtocol struct {
 	Data string `json:"data"`
 }
 
-type cmdjson struct {
-	Cmd []string `json:"cmd"`
-}
-
 func (pty *Pty) HandleStdIO() {
 	go pty.handleStdIn()
 	pty.handleStdOut()

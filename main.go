@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
@@ -19,7 +20,13 @@ func init() {
 
 func main() {
 	flag.Parse()
-	Pty, err := core.Start(Dir, Cmd)
+
+	// 解析命令参数
+	cmd := []string{}
+	json.Unmarshal([]byte(Cmd), &cmd)
+
+	fmt.Printf("[MCSMANAGER-TTY] Original command: %s\n", cmd)
+	Pty, err := core.Start(Dir, cmd)
 	if err != nil {
 		fmt.Printf("[MCSMANAGER-TTY] Process Start Error:%s\n", err)
 		os.Exit(-1)

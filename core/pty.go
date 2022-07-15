@@ -4,7 +4,6 @@
 package core
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -20,17 +19,15 @@ type Pty struct {
 	StdOut *os.File
 }
 
-func Start(dir, command string) (*Pty, error) {
-	var _cmd cmdjson
-	fmt.Printf("[MCSMANAGER-TTY] Original command: {\"cmd\":%s}\n", command)
-	json.Unmarshal([]byte(fmt.Sprintf(`{"cmd":%s}`, command)), &_cmd)
-	for k, v := range _cmd.Cmd {
+func Start(dir string, command []string) (*Pty, error) {
+	// 去除命令参数外层引号
+	for k, v := range command {
 		if v[:1] == `"` && v[len(v)-1:] == `"` {
-			_cmd.Cmd[k] = v[1 : len(v)-1]
+			command[k] = v[1 : len(v)-1]
 		}
 	}
-	fmt.Printf("[MCSMANAGER-TTY] Full command: %s\n", _cmd.Cmd)
-	cmd := exec.Command(_cmd.Cmd[0], _cmd.Cmd[1:]...)
+	fmt.Printf("[MCSMANAGER-TTY] Full command: %s\n", command)
+	cmd := exec.Command(command[0], command[1:]...)
 	cmd.Dir = dir
 	cmd.Env = os.Environ()
 	tty, err := opty.Start(cmd)
