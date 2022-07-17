@@ -33,10 +33,5 @@ func main() {
 	}
 	defer Pty.Close()
 
-	if core.PtySize == "" {
-		Pty.Setsize(50, 50)
-	} else {
-		Pty.ResizeWindow(&core.PtySize)
-	}
 	Pty.HandleStdIO()
 }

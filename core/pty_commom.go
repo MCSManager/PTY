@@ -27,8 +27,10 @@ func (pty *Pty) HandleStdIO() {
 
 func (pty *Pty) handleStdIn() {
 	if PtySize == "" {
+		pty.Setsize(50, 50)
 		pty.noSizeFlag()
 	} else {
+		pty.resizeWindow(&PtySize)
 		pty.existSizeFlag()
 	}
 }
@@ -50,7 +52,7 @@ func (pty *Pty) noSizeFlag() {
 		case 1:
 			pty.StdIn.Write([]byte(protocol.Data))
 		case 2:
-			pty.ResizeWindow(&protocol.Data)
+			pty.resizeWindow(&protocol.Data)
 		case 3:
 			pty.StdIn.Write([]byte{3})
 		default:
@@ -73,7 +75,7 @@ func (pty *Pty) existSizeFlag() {
 func (pty *Pty) handleStdOut() {
 	var stdout io.Writer
 	if Color {
-		stdout = colorable.NewColorableStdout()
+		stdout = colorable.NewColorable(os.Stdout)
 	} else {
 		stdout = colorable.NewNonColorable(os.Stdout)
 	}
@@ -81,7 +83,7 @@ func (pty *Pty) handleStdOut() {
 }
 
 // Set the PTY window size based on the text
-func (pty *Pty) ResizeWindow(sizeText *string) {
+func (pty *Pty) resizeWindow(sizeText *string) {
 	arr := strings.Split(*sizeText, ",")
 	if len(arr) != 2 {
 		fmt.Printf("[MCSMANAGER-TTY] Set tty size data failed,original data:%#v\n", *sizeText)
