@@ -26,9 +26,9 @@ func Start(dir string, command []string) (*Pty, error) {
 	for _, v := range command {
 		cmd += fmt.Sprintf("%s ", v)
 	}
-	fmt.Printf("[MCSMANAGER-TTY] Full command: %s\n", cmd)
+	// fmt.Printf("[MCSMANAGER-PTY] Full command: %s\n", cmd)
 	if err = os.Chdir(dir); err != nil {
-		fmt.Printf("[MCSMANAGER-TTY] Failed to change working directory: %v\n", err)
+		fmt.Printf("[MCSMANAGER-PTY] Failed to change working directory: %v\n", err)
 		panic(err)
 	}
 	tty, err := winpty.OpenWithOptions(winpty.Options{
@@ -48,7 +48,7 @@ func getExecutableFilePath() (string, error) {
 	if executableFileExists(filepath.Dir(ex)+"/winpty-agent.exe") && executableFileExists(filepath.Dir(ex)+"/winpty.dll") {
 		return filepath.Dir(ex), nil
 	} else {
-		return filepath.Dir(ex), errors.New("[MCSMANAGER-TTY] ExecutableFile {winpty-agent.exe,winpty.dll} does not exist")
+		return filepath.Dir(ex), errors.New("[MCSMANAGER-PTY] ExecutableFile {winpty-agent.exe,winpty.dll} does not exist")
 	}
 }
 

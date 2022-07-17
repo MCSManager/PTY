@@ -20,7 +20,7 @@ func init() {
 
 func main() {
 	flag.Parse()
-	fmt.Printf("[MCSMANAGER-TTY] Original command: %s\n", Cmd)
+	// fmt.Printf("[MCSMANAGER-PTY] Original command: %s\n", Cmd)
 
 	// 解析命令参数
 	cmd := []string{}
@@ -28,7 +28,7 @@ func main() {
 
 	Pty, err := core.Start(Dir, cmd)
 	if err != nil {
-		fmt.Printf("[MCSMANAGER-TTY] Process Start Error:%s\n", err)
+		fmt.Printf("[MCSMANAGER-PTY] Process Start Error:%v\n", err)
 		os.Exit(-1)
 	}
 	defer Pty.Close()

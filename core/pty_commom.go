@@ -44,8 +44,8 @@ func (pty *Pty) noSizeFlag() {
 		bufferText, _ = inputReader.ReadString('\n')
 		err = json.Unmarshal([]byte(bufferText), &protocol)
 		if err != nil {
-			fmt.Printf("[MCSMANAGER-TTY] Unmarshall json err: %v\noriginal data: %#v\n", err, bufferText)
-			fmt.Println("[MCSMANAGER-TTY] 正在使用 json 格式命令,具体格式请查看 github.com/MCSManager/pty")
+			fmt.Printf("[MCSMANAGER-PTY] Unmarshall json err: %v\noriginal data: %s\n", err, bufferText)
+			fmt.Println("[MCSMANAGER-PTY] 正在使用 json 格式命令,具体格式请查看 github.com/MCSManager/pty")
 			continue
 		}
 		switch protocol.Type {
@@ -86,13 +86,13 @@ func (pty *Pty) handleStdOut() {
 func (pty *Pty) resizeWindow(sizeText *string) {
 	arr := strings.Split(*sizeText, ",")
 	if len(arr) != 2 {
-		fmt.Printf("[MCSMANAGER-TTY] Set tty size data failed,original data:%#v\n", *sizeText)
+		fmt.Printf("[MCSMANAGER-PTY] Set PTY size data failed,original data:%#v\n", *sizeText)
 		return
 	}
 	cols, err1 := strconv.Atoi(arr[0])
 	rows, err2 := strconv.Atoi(arr[1])
 	if err1 != nil || err2 != nil {
-		fmt.Printf("[MCSMANAGER-TTY] Failed to set window size,original data:%#v\n", *sizeText)
+		fmt.Printf("[MCSMANAGER-PTY] Failed to set window size,original data:%#v\n", *sizeText)
 		return
 	}
 	pty.Setsize(uint32(cols), uint32(rows))
