@@ -28,7 +28,7 @@ func Start(dir string, command []string) (*Pty, error) {
 	// fmt.Printf("[MCSMANAGER-PTY] Full command: %s\n", command)
 	cmd := exec.Command(command[0], command[1:]...)
 	cmd.Dir = dir
-	cmd.Env = os.Environ()
+	cmd.Env = append(os.Environ(), "TERM=xterm")
 	tty, err := opty.Start(cmd)
 	return &Pty{tty: tty, cmd: cmd, StdIn: tty, StdOut: tty}, err
 }
