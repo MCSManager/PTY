@@ -1,4 +1,4 @@
-# Pseudo-teletyp App
+# Pseudo-teletype App
 
 [![--](https://img.shields.io/badge/Go_Version-1.18.3-green.svg)](https://github.com/MCSManager)
 [![--](https://img.shields.io/badge/Support-Windows/Linux-yellow.svg)](https://github.com/MCSManager)
