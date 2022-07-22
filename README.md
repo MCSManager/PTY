@@ -20,7 +20,7 @@ tty = "teletype"，pty = "pseudo-teletype"
 
 使用方法一：开一个 PTY 并执行命令，设置固定窗口大小，IO 流直接转发。
 
--   注意：-cmd 接收的是一个数组, 命令的参数以数组的形式传递，如：`["java","-jar","ser.jar","nogui"]`
+- 注意：-cmd 接收的是一个数组, 命令的参数以数组的形式传递，如：`["java","-jar","ser.jar","nogui"]`
 
 ```bash
 go build main.go
@@ -87,9 +87,9 @@ More info: [https://github.com/mcsmanager](https://github.com/mcsmanager)
 
 此程序属于 MCSManager 的最重要的核心功能之一，非必要不新增功能。
 
--   如果您想为这个项目提供新功能，那您必须开一个 `issue` 说明此功能，并提供编程思路，我们一起经过讨论后再决定是否开发
+- 如果您想为这个项目提供新功能，那您必须开一个 `issue` 说明此功能，并提供编程思路，我们一起经过讨论后再决定是否开发
 
--   如果您是修复 BUG，可以直接提交 PR 并说明情况
+- 如果您是修复 BUG，可以直接提交 PR 并说明情况
 
 <br />
 

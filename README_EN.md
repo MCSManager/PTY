@@ -23,7 +23,7 @@ where you needed something that acted like a terminal but could be used from ano
 
 1. Start a PTY and set window size.
 
--   Note: -cmd receives an array, and the parameters of the command are passed in the form of an array, such as：`["java","-jar","ser.jar","nogui"]`
+- Note: -cmd receives an array, and the parameters of the command are passed in the form of an array, such as：`["java","-jar","ser.jar","nogui"]`
 
 ```bash
 go build main.go
@@ -91,8 +91,8 @@ More info: [https://github.com/mcsmanager](https://github.com/mcsmanager)
 
 Interested in getting involved?
 
--   If you want to add a new feature, please create an issue first to describe the new feature, as well as the implementation approach. Once a proposal is accepted, create an implementation of the new features and submit it as a pull request.
--   If you are just fixing bugs, you can simply submit PR.
+- If you want to add a new feature, please create an issue first to describe the new feature, as well as the implementation approach. Once a proposal is accepted, create an implementation of the new features and submit it as a pull request.
+- If you are just fixing bugs, you can simply submit PR.
 
 <br />
 

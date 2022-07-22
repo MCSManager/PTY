@@ -1,5 +1,6 @@
 module github.com/MCSManager/pty
 
+// Lock
 go 1.18
 
 require (

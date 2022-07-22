@@ -20,9 +20,7 @@ func init() {
 
 func main() {
 	flag.Parse()
-	// fmt.Printf("[MCSMANAGER-PTY] Original command: %s\n", Cmd)
 
-	// 解析命令参数
 	cmd := []string{}
 	json.Unmarshal([]byte(Cmd), &cmd)
 

@@ -45,7 +45,6 @@ func (pty *Pty) noSizeFlag() {
 		err = json.Unmarshal([]byte(bufferText), &protocol)
 		if err != nil {
 			fmt.Printf("[MCSMANAGER-PTY] Unmarshall json err: %v\noriginal data: %s\n", err, bufferText)
-			fmt.Println("[MCSMANAGER-PTY] 正在使用 json 格式命令,具体格式请查看 github.com/MCSManager/pty")
 			continue
 		}
 		switch protocol.Type {
@@ -61,8 +60,8 @@ func (pty *Pty) noSizeFlag() {
 }
 
 func (pty *Pty) existSizeFlag() {
-	// 删除 stdin cache，达到系统信号直接传递到 pty
-	// 此方法操作到了文件描述符，不适用于父子进程操作
+	// Remove the stdin cache, so that the system signal is passed directly to the PTY
+	// This method operates on file descriptors and is not applicable to parent-child processes
 	// oldState, err := term.MakeRaw(int(os.Stdin.Fd()))
 	// if err != nil {
 	// 	panic(err)

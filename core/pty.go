@@ -19,7 +19,7 @@ type Pty struct {
 }
 
 func Start(dir string, command []string) (*Pty, error) {
-	// 去除命令参数外层引号
+	// remove the quotation marks around command parameters
 	for k, v := range command {
 		if v[:1] == `"` && v[len(v)-1:] == `"` {
 			command[k] = v[1 : len(v)-1]
