@@ -83,6 +83,14 @@ Ping google.com
 
 <br />
 
+## 兼容性
+
+- 支持所有现代主流版本 Linux 系统。
+- 支持 Windows 7 到 Windows 11 所有版本系统，包括 Server 系列。
+- 只支持 64 位 x86 架构。
+
+
+
 ## MCSManager
 
 MCSManager 是一款开源，分布式，开箱即用，支持 Minecraft 和其他控制台应用的程序管理面板。
@@ -92,6 +100,9 @@ MCSManager 是一款开源，分布式，开箱即用，支持 Minecraft 和其�
 More info: [https://github.com/mcsmanager](https://github.com/mcsmanager)
 
 <br />
+
+
+
 
 ## 贡献
 
