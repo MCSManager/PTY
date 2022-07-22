@@ -4,7 +4,17 @@
 [![--](https://img.shields.io/badge/Support-Windows/Linux-yellow.svg)](https://github.com/MCSManager)
 [![--](https://img.shields.io/badge/License-MIT-red.svg)](https://github.com/MCSManager)
 
+仿真终端应用程序，支持运行**所有 Linux/Windows 程序**，可以为您的更高层应用带来完全终端控制能力。
+
 中文 | [English](README_EN.md)
+
+<div align=center>
+
+![term](https://user-images.githubusercontent.com/18360009/180396380-b2ec74c4-dcab-4405-a72a-2c66c4b3eac4.png)
+
+</div>
+
+> 图片中表示的是，使用仿真终端运行`htop`命令的结果，再将内容发送到 Web 网页上并与之进行交互。
 
 <br />
 
