@@ -20,3 +20,4 @@ cache/
 *.jar
 
 server/
+tmp/
