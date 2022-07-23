@@ -7,6 +7,7 @@ require (
 	github.com/creack/pty v1.1.18
 	github.com/iamacarpet/go-winpty v1.0.4
 	github.com/mattn/go-colorable v0.1.12
+	golang.org/x/text v0.3.7
 )
 
 require (

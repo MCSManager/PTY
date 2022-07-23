@@ -16,6 +16,7 @@ func init() {
 	flag.StringVar(&Cmd, "cmd", "", "command")
 	flag.StringVar(&core.PtySize, "size", "", "Initialize pty size, stdin will be forwarded directly (default 50,50)")
 	flag.BoolVar(&core.Color, "color", false, "colorable (default false)")
+	flag.StringVar(&core.Coder, "coder", "UTF-8", "Coder")
 }
 
 func main() {
