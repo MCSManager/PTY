@@ -2,9 +2,11 @@ package core
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
@@ -52,13 +54,19 @@ func (pty *Pty) noSizeFlag() {
 		}
 		switch protocol.Type {
 		case 1:
-			data = []byte(protocol.Data)
-			pty.StdIn.Write(*utils.Encode(Coder, &data))
+			data, err = ioutil.ReadAll(utils.Encoder(Coder, bytes.NewReader([]byte(protocol.Data))))
+			if err != nil {
+				continue
+			}
+			pty.StdIn.Write(data)
 		case 2:
 			pty.resizeWindow(&protocol.Data)
 		case 3:
-			data = []byte{3}
-			pty.StdIn.Write(*utils.Encode(Coder, &data))
+			data, err = ioutil.ReadAll(utils.Encoder(Coder, bytes.NewReader([]byte{3})))
+			if err != nil {
+				continue
+			}
+			pty.StdIn.Write(data)
 		default:
 		}
 	}
