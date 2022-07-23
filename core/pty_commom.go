@@ -62,11 +62,7 @@ func (pty *Pty) noSizeFlag() {
 		case 2:
 			pty.resizeWindow(&protocol.Data)
 		case 3:
-			data, err = ioutil.ReadAll(utils.Encoder(Coder, bytes.NewReader([]byte{3})))
-			if err != nil {
-				continue
-			}
-			pty.StdIn.Write(data)
+			pty.StdIn.Write([]byte{03})
 		default:
 		}
 	}
