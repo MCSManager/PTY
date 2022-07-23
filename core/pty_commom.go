@@ -57,7 +57,8 @@ func (pty *Pty) noSizeFlag() {
 		case 2:
 			pty.resizeWindow(&protocol.Data)
 		case 3:
-			pty.StdIn.Write([]byte{3})
+			data = []byte{3}
+			pty.StdIn.Write(*utils.Encode(Coder, &data))
 		default:
 		}
 	}
@@ -72,7 +73,7 @@ func (pty *Pty) existSizeFlag() {
 	// }
 	// defer func() { _ = term.Restore(int(os.Stdin.Fd()), oldState) }()
 
-	io.Copy(pty.StdIn, utils.Decoder(Coder, os.Stdin))
+	io.Copy(pty.StdIn, utils.Encoder(Coder, os.Stdin))
 }
 
 func (pty *Pty) handleStdOut() {
