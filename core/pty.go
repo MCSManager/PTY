@@ -12,10 +12,8 @@ import (
 )
 
 type Pty struct {
-	tty    *os.File
-	cmd    *exec.Cmd
-	StdIn  *os.File
-	StdOut *os.File
+	tty *os.File
+	cmd *exec.Cmd
 }
 
 func Start(dir string, command []string) (*Pty, error) {
@@ -30,7 +28,7 @@ func Start(dir string, command []string) (*Pty, error) {
 	cmd.Dir = dir
 	cmd.Env = append(os.Environ(), "TERM=xterm")
 	tty, err := opty.Start(cmd)
-	return &Pty{tty: tty, cmd: cmd, StdIn: tty, StdOut: tty}, err
+	return &Pty{tty: tty, cmd: cmd}, err
 }
 
 func (pty *Pty) Write(p []byte) (n int, err error) {
@@ -64,4 +62,16 @@ func (pty *Pty) killChildProcess(c *exec.Cmd) error {
 	// Kill the whole process group.
 	syscall.Kill(-pgid, syscall.SIGTERM)
 	return c.Wait()
+}
+
+func (pty *Pty) StdOut() *os.File {
+	return pty.tty
+}
+
+func (pty *Pty) StdIn() *os.File {
+	return pty.tty
+}
+
+func (pty *Pty) Pid() int {
+	return pty.cmd.Process.Pid
 }

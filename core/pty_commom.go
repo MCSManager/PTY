@@ -2,18 +2,22 @@ package core
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
 
+	"github.com/MCSManager/pty/utils"
 	"github.com/mattn/go-colorable"
 )
 
-var PtySize = ""
-var Color = false
+var PtySize string
+var Color bool
+var Coder string
 
 type DataProtocol struct {
 	Type int    `json:"type"`
@@ -39,6 +43,7 @@ func (pty *Pty) noSizeFlag() {
 	var err error
 	var protocol DataProtocol
 	var bufferText string
+	var data []byte
 	inputReader := bufio.NewReader(os.Stdin)
 	for {
 		bufferText, _ = inputReader.ReadString('\n')
@@ -49,11 +54,15 @@ func (pty *Pty) noSizeFlag() {
 		}
 		switch protocol.Type {
 		case 1:
-			pty.StdIn.Write([]byte(protocol.Data))
+			data, err = ioutil.ReadAll(utils.Encoder(Coder, bytes.NewReader([]byte(protocol.Data))))
+			if err != nil {
+				continue
+			}
+			pty.StdIn().Write(data)
 		case 2:
 			pty.resizeWindow(&protocol.Data)
 		case 3:
-			pty.StdIn.Write([]byte{3})
+			pty.StdIn().Write([]byte{03})
 		default:
 		}
 	}
@@ -68,7 +77,7 @@ func (pty *Pty) existSizeFlag() {
 	// }
 	// defer func() { _ = term.Restore(int(os.Stdin.Fd()), oldState) }()
 
-	io.Copy(pty.StdIn, os.Stdin)
+	io.Copy(pty.StdIn(), utils.Encoder(Coder, os.Stdin))
 }
 
 func (pty *Pty) handleStdOut() {
@@ -78,7 +87,7 @@ func (pty *Pty) handleStdOut() {
 	} else {
 		stdout = colorable.NewNonColorable(os.Stdout)
 	}
-	io.Copy(stdout, pty.StdOut)
+	io.Copy(stdout, utils.Decoder(Coder, pty.StdOut()))
 }
 
 // Set the PTY window size based on the text
