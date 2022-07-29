@@ -4,7 +4,6 @@
 package core
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 	"syscall"
