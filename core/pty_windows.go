@@ -8,13 +8,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/iamacarpet/go-winpty"
+	"github.com/MCSManager/pty/winpty"
 )
 
 type Pty struct {
-	tty    *winpty.WinPTY
-	StdIn  *os.File
-	StdOut *os.File
+	tty *winpty.WinPTY
 }
 
 func Start(dir string, command []string) (*Pty, error) {
@@ -36,7 +34,8 @@ func Start(dir string, command []string) (*Pty, error) {
 		Dir:       dir,
 		Env:       os.Environ(),
 	})
-	return &Pty{tty: tty, StdIn: tty.StdIn, StdOut: tty.StdOut}, err
+	fmt.Printf("{pid:%d}\n\n\n\n", tty.GetPid())
+	return &Pty{tty: tty}, err
 }
 
 func getExecutableFilePath() (string, error) {
@@ -75,4 +74,12 @@ func (pty *Pty) Setsize(cols, rows uint32) error {
 func (pty *Pty) Close() error {
 	pty.tty.Close()
 	return nil
+}
+
+func (pty *Pty) StdOut() *os.File {
+	return pty.tty.StdOut
+}
+
+func (pty *Pty) StdIn() *os.File {
+	return pty.tty.StdIn
 }

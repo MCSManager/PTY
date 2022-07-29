@@ -58,11 +58,11 @@ func (pty *Pty) noSizeFlag() {
 			if err != nil {
 				continue
 			}
-			pty.StdIn.Write(data)
+			pty.StdIn().Write(data)
 		case 2:
 			pty.resizeWindow(&protocol.Data)
 		case 3:
-			pty.StdIn.Write([]byte{03})
+			pty.StdIn().Write([]byte{03})
 		default:
 		}
 	}
@@ -77,7 +77,7 @@ func (pty *Pty) existSizeFlag() {
 	// }
 	// defer func() { _ = term.Restore(int(os.Stdin.Fd()), oldState) }()
 
-	io.Copy(pty.StdIn, utils.Encoder(Coder, os.Stdin))
+	io.Copy(pty.StdIn(), utils.Encoder(Coder, os.Stdin))
 }
 
 func (pty *Pty) handleStdOut() {
@@ -87,7 +87,7 @@ func (pty *Pty) handleStdOut() {
 	} else {
 		stdout = colorable.NewNonColorable(os.Stdout)
 	}
-	io.Copy(stdout, utils.Decoder(Coder, pty.StdOut))
+	io.Copy(stdout, utils.Decoder(Coder, pty.StdOut()))
 }
 
 // Set the PTY window size based on the text
