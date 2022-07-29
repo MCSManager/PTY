@@ -25,12 +25,13 @@ func main() {
 	cmd := []string{}
 	json.Unmarshal([]byte(Cmd), &cmd)
 
-	Pty, err := core.Start(Dir, cmd)
+	pty, err := core.Start(Dir, cmd)
 	if err != nil {
 		fmt.Printf("[MCSMANAGER-PTY] Process Start Error:%v\n", err)
 		os.Exit(-1)
 	}
-	defer Pty.Close()
+	fmt.Printf("{pid:%d}\n\n\n\n", pty.Pid())
+	defer pty.Close()
 
-	Pty.HandleStdIO()
+	pty.HandleStdIO()
 }

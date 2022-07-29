@@ -8,7 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/MCSManager/pty/winpty"
+	"github.com/MCSManager/pty/core/winpty"
 )
 
 type Pty struct {
@@ -34,7 +34,6 @@ func Start(dir string, command []string) (*Pty, error) {
 		Dir:       dir,
 		Env:       os.Environ(),
 	})
-	fmt.Printf("{pid:%d}\n\n\n\n", tty.GetPid())
 	return &Pty{tty: tty}, err
 }
 
@@ -82,4 +81,8 @@ func (pty *Pty) StdOut() *os.File {
 
 func (pty *Pty) StdIn() *os.File {
 	return pty.tty.StdIn
+}
+
+func (pty *Pty) Pid() int {
+	return pty.tty.GetPid()
 }

@@ -29,7 +29,6 @@ func Start(dir string, command []string) (*Pty, error) {
 	cmd.Dir = dir
 	cmd.Env = append(os.Environ(), "TERM=xterm")
 	tty, err := opty.Start(cmd)
-	fmt.Printf("{pid:%d}\n\n\n\n", cmd.Process.Pid)
 	return &Pty{tty: tty, cmd: cmd}, err
 }
 
@@ -72,4 +71,8 @@ func (pty *Pty) StdOut() *os.File {
 
 func (pty *Pty) StdIn() *os.File {
 	return pty.tty
+}
+
+func (pty *Pty) Pid() int {
+	return pty.cmd.Process.Pid
 }
