@@ -7,11 +7,15 @@ import (
 	"os"
 
 	"github.com/MCSManager/pty/core"
-	t "github.com/MCSManager/pty/test"
+	mytest "github.com/MCSManager/pty/test"
 )
 
 var Dir, Cmd string
 var test bool
+
+type PtyInfo struct {
+	Pid int `json:"pid"`
+}
 
 func init() {
 	flag.StringVar(&Dir, "dir", "", "command work path (default ./)")
@@ -25,7 +29,7 @@ func init() {
 func main() {
 	flag.Parse()
 	if test {
-		t.Test()
+		mytest.Test()
 	}
 	cmd := []string{}
 	json.Unmarshal([]byte(Cmd), &cmd)
@@ -35,7 +39,11 @@ func main() {
 		fmt.Printf("[MCSMANAGER-PTY] Process Start Error:%v\n", err)
 		os.Exit(-1)
 	}
-	fmt.Printf("{pid:%d}\n\n\n\n", pty.Pid())
+	ptyinfo := PtyInfo{
+		Pid: pty.Pid(),
+	}
+	info, _ := json.Marshal(ptyinfo)
+	fmt.Printf("%s\n\n\n\n", info)
 	defer pty.Close()
 
 	pty.HandleStdIO()
