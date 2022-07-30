@@ -33,8 +33,8 @@ tty = "teletype"，pty = "pseudo-teletype"
 - 注意：-cmd 接收的是一个数组, 命令的参数以数组的形式传递，且需要序列化，如：`[\"java\",\"-jar\",\"ser.jar\",\"nogui\"]`
 
 ```bash
-go build main.go
-./main -dir "." -cmd [\"bash\"] -size 50,50
+go build
+./pty -dir "." -cmd [\"bash\"] -size 50,50
 ```
 
 接下来您会得到一个设置好大小宽度的窗口，并且您可以像 SSH 终端一样，进行任何交互。
@@ -46,7 +46,6 @@ htop
 ```
 
 <br />
-
 
 ## 参数：
 
@@ -85,9 +84,6 @@ MCSManager 是一款开源，分布式，开箱即用，支持 Minecraft 和其�
 More info: [https://github.com/mcsmanager](https://github.com/mcsmanager)
 
 <br />
-
-
-
 
 ## 贡献
 
