@@ -1,12 +1,8 @@
 package core
 
 import (
-	"bufio"
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
@@ -16,7 +12,7 @@ import (
 )
 
 var PtySize string
-var Color bool
+var ColorAble bool
 var Coder string
 
 type DataProtocol struct {
@@ -30,45 +26,6 @@ func (pty *Pty) HandleStdIO() {
 }
 
 func (pty *Pty) handleStdIn() {
-	if PtySize == "" {
-		pty.Setsize(50, 50)
-		pty.noSizeFlag()
-	} else {
-		pty.resizeWindow(&PtySize)
-		pty.existSizeFlag()
-	}
-}
-
-func (pty *Pty) noSizeFlag() {
-	var err error
-	var protocol DataProtocol
-	var bufferText string
-	var data []byte
-	inputReader := bufio.NewReader(os.Stdin)
-	for {
-		bufferText, _ = inputReader.ReadString('\n')
-		err = json.Unmarshal([]byte(bufferText), &protocol)
-		if err != nil {
-			fmt.Printf("[MCSMANAGER-PTY] Unmarshall json err: %v\noriginal data: %s\n", err, bufferText)
-			continue
-		}
-		switch protocol.Type {
-		case 1:
-			data, err = ioutil.ReadAll(utils.Encoder(Coder, bytes.NewReader([]byte(protocol.Data))))
-			if err != nil {
-				continue
-			}
-			pty.StdIn().Write(data)
-		case 2:
-			pty.resizeWindow(&protocol.Data)
-		case 3:
-			pty.StdIn().Write([]byte{03})
-		default:
-		}
-	}
-}
-
-func (pty *Pty) existSizeFlag() {
 	// Remove the stdin cache, so that the system signal is passed directly to the PTY
 	// This method operates on file descriptors and is not applicable to parent-child processes
 	// oldState, err := term.MakeRaw(int(os.Stdin.Fd()))
@@ -77,12 +34,13 @@ func (pty *Pty) existSizeFlag() {
 	// }
 	// defer func() { _ = term.Restore(int(os.Stdin.Fd()), oldState) }()
 
+	pty.resizeWindow(&PtySize)
 	io.Copy(pty.StdIn(), utils.Encoder(Coder, os.Stdin))
 }
 
 func (pty *Pty) handleStdOut() {
 	var stdout io.Writer
-	if Color {
+	if ColorAble {
 		stdout = colorable.NewColorable(os.Stdout)
 	} else {
 		stdout = colorable.NewNonColorable(os.Stdout)

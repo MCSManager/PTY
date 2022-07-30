@@ -18,10 +18,10 @@ type PtyInfo struct {
 }
 
 func init() {
-	flag.StringVar(&Dir, "dir", "", "command work path (default ./)")
+	flag.StringVar(&Dir, "dir", ".", "command work path (default ./)")
 	flag.StringVar(&Cmd, "cmd", "", "command")
-	flag.StringVar(&core.PtySize, "size", "", "Initialize pty size, stdin will be forwarded directly (default 50,50)")
-	flag.BoolVar(&core.Color, "color", false, "colorable (default false)")
+	flag.StringVar(&core.PtySize, "size", "50,50", "Initialize pty size, stdin will be forwarded directly (default 50,50)")
+	flag.BoolVar(&core.ColorAble, "color", false, "colorable (default false)")
 	flag.StringVar(&core.Coder, "coder", "UTF-8", "Coder")
 	flag.BoolVar(&test, "test", false, "Test whether the system environment is pty compatible")
 }
