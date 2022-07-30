@@ -32,6 +32,8 @@ func Decoder(types string, r io.Reader) *transform.Reader {
 		decoder = transform.NewReader(r, traditionalchinese.Big5.NewDecoder())
 	case "UTF-16":
 		decoder = transform.NewReader(r, unicode.UTF16(unicode.LittleEndian, unicode.IgnoreBOM).NewDecoder())
+	default:
+		decoder = transform.NewReader(r, unicode.UTF8.NewDecoder())
 	}
 	return decoder
 }
@@ -57,6 +59,8 @@ func Encoder(types string, r io.Reader) *transform.Reader {
 		encoder = transform.NewReader(r, traditionalchinese.Big5.NewEncoder())
 	case "UTF-16":
 		encoder = transform.NewReader(r, unicode.UTF16(unicode.LittleEndian, unicode.IgnoreBOM).NewEncoder())
+	default:
+		encoder = transform.NewReader(r, unicode.UTF8.NewEncoder())
 	}
 	return encoder
 }

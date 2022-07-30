@@ -43,7 +43,7 @@ func main() {
 		Pid: pty.Pid(),
 	}
 	info, _ := json.Marshal(ptyinfo)
-	fmt.Printf("%s\n\n\n\n", info)
+	fmt.Printf("%s\n", info)
 	defer pty.Close()
 
 	pty.HandleStdIO()
