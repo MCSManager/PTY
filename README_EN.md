@@ -23,11 +23,11 @@ where you needed something that acted like a terminal but could be used from ano
 
 1. Start a PTY and set window size.
 
-- Note: -cmd receives an array, and the parameters of the command are passed in the form of an array, such as：`["java","-jar","ser.jar","nogui"]`
+- Note: -cmd receives an array, and the parameters of the command are passed in the form of an array and needs to be serialized, such as：`[\"java\",\"-jar\",\"ser.jar\",\"nogui\"]`
 
 ```bash
-go build main.go
-./main -dir "." -cmd '["bash"]' -size 50,50
+go build
+./pty -dir "." -cmd [\"bash\"] -size 50,50
 ```
 
 You can execute any command, just like the SSH terminal.
@@ -40,36 +40,21 @@ htop
 
 <br />
 
-2. Start a PTY and dynamically change the window size.
-
-```bash
-go build main.go
-./main.exe -dir "." -cmd '["cmd.exe"]'
-```
-
-Ping google.com.
-
-```bash
-{"type":1,"data":"ping google.com\r\n"}\n
-```
-
-Resize pty window size.
-
-```
-{"type":2,"data":"20,20"}\n
-```
-
 ## Flags:
 
 ```
   -cmd string
         command
+  -coder string
+        Coder (default "UTF-8")
   -color
         colorable (default false)
   -dir string
-        command work path (default ./)
+        command work path (default ".")
   -size string
-        Initialize pty size, stdin will be forwarded directly (default 50,50)
+        Initialize pty size, stdin will be forwarded directly (default "50,50")
+  -test
+        Test whether the system environment is pty compatible
 ```
 
 <br />
