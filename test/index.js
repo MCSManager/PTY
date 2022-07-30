@@ -1,4 +1,7 @@
 const { spawn } = require("child_process");
+const readline = require("readline");
+
+// process.chdir("../");
 
 // const command = JSON.stringify(['"C:\\Program Files\\Java\\jdk-17.0.2\\bin\\java"', "-jar", "paper-1.18.1-215.jar"]);
 // const command = JSON.stringify(["TerrariaServer.exe"]);
@@ -21,10 +24,19 @@ p.on("exit", (err) => {
   console.log("[DEBUG] OK:", err);
 });
 
-p.stdout.on("data", (v) => {
-  process.stdout.write(v);
+const rl = readline.createInterface({
+  input: p.stdout,
+  crlfDelay: Infinity,
 });
 
-process.stdin.on("data", (v) => {
-  p.stdin.write(v);
+rl.on("line", (line = "") => {
+  console.log("FirstLine:", line);
+  p.stdout.on("data", (v = "") => {
+    process.stdout.write(v);
+  });
+
+  process.stdin.on("data", (v) => {
+    p.stdin.write(v);
+  });
+  rl.removeAllListeners();
 });
