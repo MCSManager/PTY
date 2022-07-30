@@ -31,6 +31,13 @@ const rl = readline.createInterface({
 
 rl.on("line", (line = "") => {
   console.log("FirstLine:", line);
+  listen(line);
+  rl.removeAllListeners();
+});
+
+function listen(line) {
+  // const processInfo = JSON.parse(line);
+  console.log("PTY SubProcess Info:", line);
   p.stdout.on("data", (v = "") => {
     process.stdout.write(v);
   });
@@ -38,5 +45,4 @@ rl.on("line", (line = "") => {
   process.stdin.on("data", (v) => {
     p.stdin.write(v);
   });
-  rl.removeAllListeners();
-});
+}
