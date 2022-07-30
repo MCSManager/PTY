@@ -9,7 +9,7 @@ const command = JSON.stringify(["bash"]);
 
 const p = spawn(
   "./main",
-  ["-dir", ".", "-cmd", command, "-size", "80,80", "-color"],
+  ["-dir", ".", "-cmd", command, "-size", "80,80", "-color", "-coder", "UTF-8"],
   {
     cwd: ".",
     stdio: "pipe",
