@@ -30,11 +30,11 @@ tty = "teletype"，pty = "pseudo-teletype"
 
 使用方法一：开一个 PTY 并执行命令，设置固定窗口大小，IO 流直接转发。
 
-- 注意：-cmd 接收的是一个数组, 命令的参数以数组的形式传递，如：`["java","-jar","ser.jar","nogui"]`
+- 注意：-cmd 接收的是一个数组, 命令的参数以数组的形式传递，且需要序列化，如：`[\"java\",\"-jar\",\"ser.jar\",\"nogui\"]`
 
 ```bash
 go build main.go
-./main -dir "." -cmd '["bash"]' -size 50,50
+./main -dir "." -cmd [\"bash\"] -size 50,50
 ```
 
 接下来您会得到一个设置好大小宽度的窗口，并且您可以像 SSH 终端一样，进行任何交互。
@@ -47,38 +47,22 @@ htop
 
 <br />
 
-使用方法二：开启一个 PTY 并执行命令，并接受动态指令调整。
-
-```bash
-go build main.go
-./main.exe -dir "." -cmd '["cmd.exe"]'
-```
-
-Ping google.com
-
-这段数据需要向程序的输入流发送，末尾跟上 `\n` 符
-
-```bash
-{"type":1,"data":"ping google.com\r\n"}\n
-```
-
-重设 PTY 窗口大小
-
-```
-{"type":2,"data":"20,20"}\n
-```
 
 ## 参数：
 
 ```
   -cmd string
         command
+  -coder string
+        Coder (default "UTF-8")
   -color
         colorable (default false)
   -dir string
-        command work path (default ./)
+        command work path (default ./) (default ".")
   -size string
-        Initialize pty size, stdin will be forwarded directly (default 50,50)
+        Initialize pty size, stdin will be forwarded directly (default 50,50) (default "50,50")
+  -test
+        Test whether the system environment is pty compatible
 ```
 
 <br />
@@ -87,7 +71,7 @@ Ping google.com
 
 - 支持所有现代主流版本 Linux 系统。
 - 支持 Windows 7 到 Windows 11 所有版本系统，包括 Server 系列。
-- 只支持 64 位 x86 架构。
+- 支持 windows amd64 / linux amd64 & arm64。
 
 
 <br />
