@@ -57,9 +57,9 @@ htop
   -color
         colorable (default false)
   -dir string
-        command work path (default ./) (default ".")
+        command work path (default ".")
   -size string
-        Initialize pty size, stdin will be forwarded directly (default 50,50) (default "50,50")
+        Initialize pty size, stdin will be forwarded directly (default "50,50")
   -test
         Test whether the system environment is pty compatible
 ```
