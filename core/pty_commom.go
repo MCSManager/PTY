@@ -11,7 +11,6 @@ import (
 	"github.com/mattn/go-colorable"
 )
 
-var PtySize string
 var ColorAble bool
 var Coder string
 
@@ -34,7 +33,6 @@ func (pty *Pty) handleStdIn() {
 	// }
 	// defer func() { _ = term.Restore(int(os.Stdin.Fd()), oldState) }()
 
-	pty.resizeWindow(&PtySize)
 	io.Copy(pty.StdIn(), utils.Encoder(Coder, os.Stdin))
 }
 
@@ -49,16 +47,16 @@ func (pty *Pty) handleStdOut() {
 }
 
 // Set the PTY window size based on the text
-func (pty *Pty) resizeWindow(sizeText *string) {
-	arr := strings.Split(*sizeText, ",")
+func (pty *Pty) ResizeWindow(sizeText string) {
+	arr := strings.Split(sizeText, ",")
 	if len(arr) != 2 {
-		fmt.Printf("[MCSMANAGER-PTY] Set PTY size data failed,original data:%#v\n", *sizeText)
+		fmt.Printf("[MCSMANAGER-PTY] Set PTY size data failed,original data:%#v\n", sizeText)
 		return
 	}
 	cols, err1 := strconv.Atoi(arr[0])
 	rows, err2 := strconv.Atoi(arr[1])
 	if err1 != nil || err2 != nil {
-		fmt.Printf("[MCSMANAGER-PTY] Failed to set window size,original data:%#v\n", *sizeText)
+		fmt.Printf("[MCSMANAGER-PTY] Failed to set window size,original data:%#v\n", sizeText)
 		return
 	}
 	pty.Setsize(uint32(cols), uint32(rows))

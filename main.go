@@ -12,6 +12,7 @@ import (
 
 var Dir, Cmd string
 var test bool
+var PtySize string
 
 type PtyInfo struct {
 	Pid int `json:"pid"`
@@ -20,7 +21,7 @@ type PtyInfo struct {
 func init() {
 	flag.StringVar(&Dir, "dir", ".", "command work path")
 	flag.StringVar(&Cmd, "cmd", "", "command")
-	flag.StringVar(&core.PtySize, "size", "50,50", "Initialize pty size, stdin will be forwarded directly")
+	flag.StringVar(&PtySize, "size", "50,50", "Initialize pty size, stdin will be forwarded directly")
 	flag.BoolVar(&core.ColorAble, "color", false, "colorable (default false)")
 	flag.StringVar(&core.Coder, "coder", "UTF-8", "Coder")
 	flag.BoolVar(&test, "test", false, "Test whether the system environment is pty compatible")
@@ -45,6 +46,7 @@ func main() {
 	info, _ := json.Marshal(ptyinfo)
 	fmt.Printf("%s\n", info)
 	defer pty.Close()
+	pty.ResizeWindow(PtySize)
 
 	pty.HandleStdIO()
 }
