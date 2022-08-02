@@ -9,27 +9,23 @@ import (
 	"github.com/MCSManager/pty/core"
 )
 
-var linuxDefault = []string{"bash", "sh"}
+var (
+	linuxDefault   = []string{"bash", "sh"}
+	windowsDefault = []string{"powershell", "cmd"}
+)
 
 func Test() {
-	var cmd []string
+	var shellPath string
 	if runtime.GOOS == "windows" {
-		cmd = []string{"cmd"}
+		shellPath = lookInPath(windowsDefault)
 	} else if runtime.GOOS == "linux" {
-		var shellPath string
-		for i := 0; i < len(linuxDefault); i++ {
-			shellPath, _ = exec.LookPath(linuxDefault[i])
-			if shellPath != "" {
-				break
-			}
-		}
-		if shellPath == "" {
-			fmt.Print("0")
-			os.Exit(0)
-		}
-		cmd = []string{shellPath}
+		shellPath = lookInPath(linuxDefault)
 	}
-	pty, err := core.Start(".", cmd)
+	if shellPath == "" {
+		fmt.Print("0")
+		os.Exit(0)
+	}
+	pty, err := core.Start(".", []string{shellPath})
 	if err != nil {
 		fmt.Printf("[MCSMANAGER-PTY] Process Start Error:%v\n", err)
 		os.Exit(-1)
@@ -37,4 +33,15 @@ func Test() {
 	fmt.Print("0")
 	pty.Close()
 	os.Exit(0)
+}
+
+func lookInPath(path []string) string {
+	var shellPath string
+	for i := 0; i < len(path); i++ {
+		shellPath, _ = exec.LookPath(path[i])
+		if shellPath != "" {
+			continue
+		}
+	}
+	return shellPath
 }
