@@ -1,6 +1,6 @@
 # Pseudo-teletype App
 
-[![--](https://img.shields.io/badge/Go_Version-1.18.3-green.svg)](https://github.com/MCSManager)
+[![--](https://img.shields.io/badge/Go_Version-1.19-green.svg)](https://github.com/MCSManager)
 [![--](https://img.shields.io/badge/Support-Windows/Linux-yellow.svg)](https://github.com/MCSManager)
 [![--](https://img.shields.io/badge/License-MIT-red.svg)](https://github.com/MCSManager)
 
@@ -21,7 +21,7 @@ where you needed something that acted like a terminal but could be used from ano
 
 ## Quickstart
 
-1. Start a PTY and set window size.
+Start a PTY and set window size.
 
 - Note: -cmd receives an array, and the parameters of the command are passed in the form of an array and needs to be serialized, such as：`[\"java\",\"-jar\",\"ser.jar\",\"nogui\"]`
 

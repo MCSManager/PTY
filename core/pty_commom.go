@@ -14,11 +14,6 @@ import (
 var ColorAble bool
 var Coder string
 
-type DataProtocol struct {
-	Type int    `json:"type"`
-	Data string `json:"data"`
-}
-
 func (pty *Pty) HandleStdIO() {
 	go pty.handleStdIn()
 	pty.handleStdOut()

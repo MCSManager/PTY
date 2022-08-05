@@ -1,6 +1,6 @@
 # Pseudo-teletype App
 
-[![--](https://img.shields.io/badge/Go_Version-1.18.3-green.svg)](https://github.com/MCSManager)
+[![--](https://img.shields.io/badge/Go_Version-1.19-green.svg)](https://github.com/MCSManager)
 [![--](https://img.shields.io/badge/Support-Windows/Linux-yellow.svg)](https://github.com/MCSManager)
 [![--](https://img.shields.io/badge/License-MIT-red.svg)](https://github.com/MCSManager)
 
@@ -28,7 +28,7 @@ tty = "teletype"，pty = "pseudo-teletype"
 
 ## 使用
 
-使用方法一：开一个 PTY 并执行命令，设置固定窗口大小，IO 流直接转发。
+开一个 PTY 并执行命令，设置固定窗口大小，IO 流直接转发。
 
 - 注意：-cmd 接收的是一个数组, 命令的参数以数组的形式传递，且需要序列化，如：`[\"java\",\"-jar\",\"ser.jar\",\"nogui\"]`
 
