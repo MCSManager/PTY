@@ -18,9 +18,9 @@ jobs:
 
             - name: Build
               run: |
-                  CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags="-w -s" -o pty_windows_amd64.exe
-                  CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o pty_linux_amd64
-                  CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags="-w -s" -o pty_linux_arm64
+                  CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags '-s -w --extldflags "-static -fpic"' -o pty_windows_amd64.exe
+                  CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_amd64
+                  CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_arm64
 
             - name: Upload a Build Artifact
               uses: actions/upload-artifact@v3.1.0
