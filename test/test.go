@@ -6,7 +6,7 @@ import (
 	"os/exec"
 	"runtime"
 
-	"github.com/MCSManager/pty/core"
+	pty "github.com/MCSManager/pty/core"
 )
 
 var (
@@ -14,6 +14,7 @@ var (
 	windowsDefault = []string{"powershell", "cmd"}
 )
 
+// If the operation is successful, it will output 0 and exit code 0
 func Test() {
 	var shellPath string
 	if runtime.GOOS == "windows" {
@@ -21,17 +22,10 @@ func Test() {
 	} else if runtime.GOOS == "linux" {
 		shellPath = lookInPath(linuxDefault)
 	}
-	if shellPath == "" {
-		fmt.Print("0")
-		os.Exit(0)
-	}
-	pty, err := core.Start(".", []string{shellPath})
-	if err != nil {
-		fmt.Printf("[MCSMANAGER-PTY] Process Start Error:%v\n", err)
-		os.Exit(-1)
-	}
+	console := pty.New("UTF-8")
+	console.Start(".", []string{shellPath})
+	console.Close()
 	fmt.Print("0")
-	pty.Close()
 	os.Exit(0)
 }
 

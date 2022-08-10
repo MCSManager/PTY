@@ -1,13 +1,13 @@
 # Binaries for programs and plugins
 *.exe
 *.exe~
+!winpty-agent.exe
 *.dll
+!winpty.dll
 *.so
 *.dylib
 *.log
 .idea
-!winpty-agent.exe
-!winpty.dll
 # Test binary, built with `go test -c`
 *.test
 # Output of the go coverage tool, specifically when used with LiteIDE
