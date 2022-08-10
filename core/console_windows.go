@@ -45,8 +45,7 @@ func (c *console) Start(dir string, command []string) error {
 		return err
 	}
 	if err = os.Chdir(dir); err != nil {
-		fmt.Printf("[MCSMANAGER-PTY] Failed to change workspace directory: %v\n", err)
-		panic(err)
+		return err
 	}
 	opts := winpty.Options{
 		DLLPrefix: dllDir,
