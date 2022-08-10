@@ -72,7 +72,6 @@ func (c *console) buildCmd(args []string) string {
 }
 
 func (c *console) UnloadEmbeddedDeps() (string, error) {
-
 	executableName, err := os.Executable()
 	if err != nil {
 		return "", err
@@ -97,7 +96,7 @@ func (c *console) UnloadEmbeddedDeps() (string, error) {
 		if err != nil {
 			return "", err
 		}
-		file, err := os.OpenFile(path.Join(dllDir, file), os.O_CREATE|os.O_WRONLY, 0644)
+		file, err := os.OpenFile(filenameDisk, os.O_CREATE|os.O_WRONLY, 0755)
 		if err != nil {
 			return "", err
 		}
