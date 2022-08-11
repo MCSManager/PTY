@@ -7,9 +7,8 @@ import (
 	"path"
 	"path/filepath"
 
-	"github.com/MCSManager/pty/core/interfaces"
-
 	"github.com/MCSManager/pty/core/go-winpty"
+	"github.com/MCSManager/pty/core/interfaces"
 )
 
 //go:embed winpty/*
@@ -72,12 +71,7 @@ func (c *console) buildCmd(args []string) string {
 }
 
 func (c *console) UnloadEmbeddedDeps() (string, error) {
-	executableName, err := os.Executable()
-	if err != nil {
-		return "", err
-	}
-	executableName = filepath.Base(executableName)
-	dllDir := filepath.Join(os.TempDir(), fmt.Sprintf("%s_winpty", executableName))
+	dllDir := filepath.Join(os.TempDir(), "pty_winpty")
 	if err := os.MkdirAll(dllDir, 0755); err != nil {
 		return "", err
 	}
