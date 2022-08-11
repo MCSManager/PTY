@@ -163,6 +163,19 @@ func (c *console) Pid() int {
 	return c.file.GetPid()
 }
 
+func (c *console) Wait() (*os.ProcessState, error) {
+	if c.file == nil {
+		return nil, ErrProcessNotStarted
+	}
+
+	proc, err := os.FindProcess(int(c.Pid()))
+	if err != nil {
+		return nil, err
+	}
+
+	return proc.Wait()
+}
+
 func (c *console) Kill() error {
 	if c.file == nil {
 		return ErrProcessNotStarted

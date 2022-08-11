@@ -126,6 +126,14 @@ func (c *console) Pid() int {
 	return c.cmd.Process.Pid
 }
 
+func (c *console) Wait() (*os.ProcessState, error) {
+	if c.cmd == nil {
+		return nil, ErrProcessNotStarted
+	}
+
+	return c.cmd.Process.Wait()
+}
+
 func (c *console) Kill() error {
 	if c.cmd == nil {
 		return ErrProcessNotStarted

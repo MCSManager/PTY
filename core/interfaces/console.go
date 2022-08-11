@@ -21,6 +21,8 @@ type Console interface {
 
 	Pid() int
 
+	Wait() (*os.ProcessState, error)
+
 	Kill() error
 
 	Signal(sig os.Signal) error

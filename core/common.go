@@ -24,7 +24,7 @@ func New(coder string) Console {
 
 func (c *console) HandleStdIO(ColorAble bool) {
 	go c.handleStdIn()
-	c.handleStdOut(ColorAble)
+	go c.handleStdOut(ColorAble)
 }
 
 func (c *console) handleStdIn() {

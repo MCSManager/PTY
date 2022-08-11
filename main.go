@@ -34,24 +34,25 @@ func main() {
 		mytest.Test()
 	}
 
-	console := pty.New(coder)
-	defer console.Close()
+	con := pty.New(coder)
+	defer con.Close()
 
 	cmds := []string{}
 	json.Unmarshal([]byte(cmd), &cmds)
-	if err := console.Start(dir, cmds); err != nil {
+	if err := con.Start(dir, cmds); err != nil {
 		fmt.Printf("[MCSMANAGER-PTY] Process Start Error:%v\n", err)
 		os.Exit(-1)
 	}
 
 	ptyinfo := PtyInfo{
-		Pid: console.Pid(),
+		Pid: con.Pid(),
 	}
 	info, _ := json.Marshal(ptyinfo)
 	fmt.Printf("%s\n", info)
 
 	cols, rows := utils.ResizeWindow(ptySize)
-	console.SetSize(cols, rows)
+	con.SetSize(cols, rows)
 
-	console.HandleStdIO(colorAble)
+	con.HandleStdIO(colorAble)
+	con.Wait()
 }
