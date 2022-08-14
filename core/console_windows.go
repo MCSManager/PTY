@@ -44,22 +44,18 @@ func (c *console) Start(dir string, command []string) error {
 	if err != nil {
 		return err
 	}
-	if err = os.Chdir(dir); err != nil {
-		return err
-	}
-	opts := winpty.Options{
+
+	if cmd, err := winpty.OpenWithOptions(winpty.Options{
 		DLLPrefix: dllDir,
 		Command:   c.buildCmd(command),
 		Dir:       dir,
 		Env:       c.env,
-	}
-
-	cmd, err := winpty.OpenWithOptions(opts)
-	if err != nil {
+	}); err != nil {
 		return err
+	} else {
+		c.file = cmd
 	}
 
-	c.file = cmd
 	return nil
 }
 
