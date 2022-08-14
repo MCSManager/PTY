@@ -35,23 +35,20 @@ func main() {
 	}
 
 	con := pty.New(coder)
-	defer con.Close()
 
 	cmds := []string{}
 	json.Unmarshal([]byte(cmd), &cmds)
 	if err := con.Start(dir, cmds); err != nil {
-		fmt.Printf("[MCSMANAGER-PTY] Process Start Error:%v\n", err)
+		fmt.Printf("[MCSMANAGER-PTY] Process Start Error: %v\n", err)
 		os.Exit(-1)
 	}
+	defer con.Close()
+	con.SetSize(utils.ResizeWindow(ptySize))
 
-	ptyinfo := PtyInfo{
+	info, _ := json.Marshal(&PtyInfo{
 		Pid: con.Pid(),
-	}
-	info, _ := json.Marshal(ptyinfo)
-	fmt.Printf("%s\n", info)
-
-	cols, rows := utils.ResizeWindow(ptySize)
-	con.SetSize(cols, rows)
+	})
+	fmt.Println(string(info))
 
 	con.HandleStdIO(colorAble)
 	con.Wait()
