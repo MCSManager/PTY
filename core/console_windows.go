@@ -9,6 +9,7 @@ import (
 
 	"github.com/MCSManager/pty/core/go-winpty"
 	"github.com/MCSManager/pty/core/interfaces"
+	"github.com/MCSManager/pty/utils"
 )
 
 //go:embed winpty/*
@@ -63,7 +64,7 @@ func (c *console) Start(dir string, command []string) error {
 }
 
 func (c *console) buildCmd(args []string) string {
-	var cmds string
+	var cmds = fmt.Sprintf("cmd /C chcp %s && ", utils.CodePage(c.coder))
 	for _, v := range args {
 		cmds += fmt.Sprintf("%s ", v)
 	}
@@ -172,7 +173,6 @@ func (c *console) Wait() (*os.ProcessState, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return proc.Wait()
 }
 

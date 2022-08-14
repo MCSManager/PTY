@@ -1,13 +1,14 @@
 package console
 
 import (
+	"bufio"
 	"errors"
 	"io"
 	"os"
+	"runtime"
 
 	"github.com/MCSManager/pty/core/interfaces"
 	"github.com/MCSManager/pty/utils"
-
 	"github.com/mattn/go-colorable"
 )
 
@@ -28,7 +29,11 @@ func (c *console) HandleStdIO(ColorAble bool) {
 }
 
 func (c *console) handleStdIn() {
-	io.Copy(c.stdIn(), utils.Encoder(c.coder, os.Stdin))
+	if runtime.GOOS == "windows" {
+		io.Copy(c.stdIn(), os.Stdin)
+	} else {
+		io.Copy(c.stdIn(), utils.EncoderReader(c.coder, os.Stdin))
+	}
 }
 
 func (c *console) handleStdOut(ColorAble bool) {
@@ -38,5 +43,10 @@ func (c *console) handleStdOut(ColorAble bool) {
 	} else {
 		stdout = colorable.NewNonColorable(os.Stdout)
 	}
-	io.Copy(stdout, utils.Decoder(c.coder, c.stdOut()))
+	if runtime.GOOS == "windows" {
+		bufio.NewReader(c.stdOut()).ReadString('\n')
+		io.Copy(stdout, c.stdOut())
+	} else {
+		io.Copy(stdout, utils.DecoderReader(c.coder, c.stdOut()))
+	}
 }
