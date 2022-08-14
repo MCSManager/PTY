@@ -1,7 +1,6 @@
 package console
 
 import (
-	"bufio"
 	"errors"
 	"io"
 	"os"
@@ -44,7 +43,7 @@ func (c *console) handleStdOut(ColorAble bool) {
 		stdout = colorable.NewNonColorable(os.Stdout)
 	}
 	if runtime.GOOS == "windows" {
-		bufio.NewReader(c.stdOut()).ReadString('\n')
+		utils.ReadTo("\n", c.stdOut())
 		io.Copy(stdout, c.stdOut())
 	} else {
 		io.Copy(stdout, utils.DecoderReader(c.coder, c.stdOut()))
