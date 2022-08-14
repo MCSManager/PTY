@@ -2,7 +2,6 @@ package utils
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 )
@@ -20,14 +19,4 @@ func ResizeWindow(sizeText string) (int, int) {
 		return 50, 50
 	}
 	return cols, rows
-}
-
-func ReadTo(str string, reader *os.File) {
-	var tmp = make([]byte, 1)
-	for {
-		reader.Read(tmp)
-		if string(tmp) == str {
-			return
-		}
-	}
 }
