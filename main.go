@@ -42,7 +42,10 @@ func main() {
 		os.Exit(-1)
 	}
 	defer con.Close()
-	con.ResizeWithString(ptySize)
+
+	if err := con.ResizeWithString(ptySize); err != nil {
+		fmt.Println(err)
+	}
 
 	info, _ := json.Marshal(&PtyInfo{
 		Pid: con.Pid(),
