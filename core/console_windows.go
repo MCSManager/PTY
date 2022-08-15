@@ -1,10 +1,12 @@
 package console
 
 import (
-	"embed"
+	"archive/zip"
+	"bytes"
+	_ "embed"
 	"fmt"
+	"io"
 	"os"
-	"path"
 	"path/filepath"
 
 	"github.com/MCSManager/pty/core/go-winpty"
@@ -13,7 +15,7 @@ import (
 )
 
 //go:embed winpty/*
-var winpty_deps embed.FS
+var winpty_zip []byte
 
 var _ interfaces.Console = (*console)(nil)
 
@@ -63,28 +65,49 @@ func (c *console) UnloadEmbeddedDeps() (string, error) {
 
 	files := []string{"winpty.dll", "winpty-agent.exe"}
 	for _, file := range files {
-		filenameEmbedded := fmt.Sprintf("winpty/%s", file)
-		filenameDisk := path.Join(dllDir, file)
-
-		_, statErr := os.Stat(filenameDisk)
+		_, statErr := os.Stat(filepath.Join(dllDir, file))
 		if statErr == nil {
 			continue
+		} else {
+			unzip(bytes.NewReader(winpty_zip), file, dllDir)
 		}
-
-		data, err := winpty_deps.ReadFile(filenameEmbedded)
-		if err != nil {
-			return "", err
-		}
-		file, err := os.OpenFile(filenameDisk, os.O_CREATE|os.O_WRONLY, 0755)
-		if err != nil {
-			return "", err
-		}
-		if _, err := file.Write(data); err != nil {
-			return "", err
-		}
-		file.Close()
 	}
 	return dllDir, nil
+}
+
+func unzip(f *bytes.Reader, fileName, targetPath string) error {
+	zipReader, err := zip.NewReader(f, f.Size())
+	if err != nil {
+		return err
+	}
+	for _, f := range zipReader.File {
+		if f.Name != fileName {
+			continue
+		}
+		fpath := filepath.Join(targetPath, f.Name)
+		if f.FileInfo().IsDir() {
+			os.MkdirAll(fpath, os.ModePerm)
+		} else {
+			if err = os.MkdirAll(filepath.Dir(fpath), os.ModePerm); err != nil {
+				return err
+			}
+			inFile, err := f.Open()
+			if err != nil {
+				return err
+			}
+			outFile, err := os.OpenFile(fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
+			if err != nil {
+				return err
+			}
+			_, err = io.Copy(outFile, inFile)
+			if err != nil {
+				return err
+			}
+			inFile.Close()
+			outFile.Close()
+		}
+	}
+	return err
 }
 
 func (c *console) stdIn() *os.File {

@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"runtime"
 
 	pty "github.com/MCSManager/pty/core"
 	mytest "github.com/MCSManager/pty/test"
@@ -18,11 +19,16 @@ type PtyInfo struct {
 }
 
 func init() {
-	flag.StringVar(&dir, "dir", ".", "command work path")
-	flag.StringVar(&cmd, "cmd", "", "command")
-	flag.StringVar(&ptySize, "size", "50,50", "Initialize pty size, stdin will be forwarded directly")
+	if runtime.GOOS == "windows" {
+		flag.StringVar(&cmd, "cmd", "[\"cmd\"]", "command")
+	} else {
+		flag.StringVar(&cmd, "cmd", "[\"sh\"]", "command")
+	}
+
 	flag.BoolVar(&colorAble, "color", false, "colorable (default false)")
 	flag.StringVar(&coder, "coder", "UTF-8", "Coder")
+	flag.StringVar(&dir, "dir", ".", "command work path")
+	flag.StringVar(&ptySize, "size", "80,50", "Initialize pty size, stdin will be forwarded directly")
 	flag.BoolVar(&test, "test", false, "Test whether the system environment is pty compatible")
 }
 
