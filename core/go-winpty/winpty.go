@@ -3,6 +3,7 @@
 package winpty
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"syscall"
@@ -133,16 +134,17 @@ func OpenWithOptions(options Options) (*WinPTY, error) {
 	}
 }
 
-func (obj *WinPTY) SetSize(ws_col, ws_row uint32) {
+func (obj *WinPTY) SetSize(ws_col, ws_row uint32) error {
 	if ws_col == 0 || ws_row == 0 {
-		return
+		return errors.New("size is 0")
 	}
-	winpty_set_size.Call(obj.wp, uintptr(ws_col), uintptr(ws_row), uintptr(0))
+	_, _, err := winpty_set_size.Call(obj.wp, uintptr(ws_col), uintptr(ws_row), uintptr(0))
+	return err
 }
 
-func (obj *WinPTY) Close() {
+func (obj *WinPTY) Close() error {
 	if obj.closed {
-		return
+		return nil
 	}
 
 	winpty_free.Call(obj.wp)
@@ -150,9 +152,10 @@ func (obj *WinPTY) Close() {
 	obj.StdIn.Close()
 	obj.StdOut.Close()
 
-	syscall.CloseHandle(syscall.Handle(obj.childHandle))
+	err := syscall.CloseHandle(syscall.Handle(obj.childHandle))
 
 	obj.closed = true
+	return err
 }
 
 func (obj *WinPTY) GetProcHandle() uintptr {

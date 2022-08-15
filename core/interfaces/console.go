@@ -13,7 +13,9 @@ type Console interface {
 
 	SetSize(cols int, rows int) error
 
-	GetSize() (int, int, error)
+	ResizeWithString(sizeText string) error
+
+	GetSize() (int, int)
 
 	Start(dir string, command []string) error
 

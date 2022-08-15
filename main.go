@@ -8,7 +8,6 @@ import (
 
 	pty "github.com/MCSManager/pty/core"
 	mytest "github.com/MCSManager/pty/test"
-	"github.com/MCSManager/pty/utils"
 )
 
 var dir, cmd, coder, ptySize string
@@ -43,7 +42,7 @@ func main() {
 		os.Exit(-1)
 	}
 	defer con.Close()
-	con.SetSize(utils.ResizeWindow(ptySize))
+	con.ResizeWithString(ptySize)
 
 	info, _ := json.Marshal(&PtyInfo{
 		Pid: con.Pid(),

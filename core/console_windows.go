@@ -18,25 +18,13 @@ var winpty_deps embed.FS
 var _ interfaces.Console = (*console)(nil)
 
 type console struct {
+	file  *winpty.WinPTY
+	coder string
+
 	initialCols int
 	initialRows int
-	coder       string
-
-	file *winpty.WinPTY
 
 	env []string
-}
-
-func newNative(coder string) Console {
-	return &console{
-		initialCols: 50,
-		initialRows: 50,
-		coder:       coder,
-
-		file: nil,
-
-		env: os.Environ(),
-	}
 }
 
 func (c *console) Start(dir string, command []string) error {
@@ -99,39 +87,12 @@ func (c *console) UnloadEmbeddedDeps() (string, error) {
 	return dllDir, nil
 }
 
-func (c *console) Read(b []byte) (int, error) {
-	if c.file == nil {
-		return 0, ErrProcessNotStarted
-	}
-
-	n, err := c.file.StdOut.Read(b)
-
-	return n, err
-}
-
-func (c *console) Write(b []byte) (int, error) {
-	if c.file == nil {
-		return 0, ErrProcessNotStarted
-	}
-
-	return c.file.StdIn.Write(b)
-}
-
 func (c *console) stdIn() *os.File {
 	return c.file.StdIn
 }
 
 func (c *console) stdOut() *os.File {
 	return c.file.StdOut
-}
-
-func (c *console) Close() error {
-	if c.file == nil {
-		return ErrProcessNotStarted
-	}
-
-	c.file.Close()
-	return nil
 }
 
 func (c *console) SetSize(cols int, rows int) error {
@@ -142,57 +103,19 @@ func (c *console) SetSize(cols int, rows int) error {
 		return nil
 	}
 
-	c.file.SetSize(uint32(c.initialCols), uint32(c.initialRows))
-	return nil
-}
-
-func (c *console) GetSize() (int, int, error) {
-	return c.initialCols, c.initialRows, nil
-}
-
-func (c *console) AddENV(environ []string) error {
-	c.env = append(c.env, environ...)
-	return nil
+	return c.file.SetSize(uint32(c.initialCols), uint32(c.initialRows))
 }
 
 func (c *console) Pid() int {
+	if c.file == nil {
+		return 0
+	}
 	return c.file.GetPid()
 }
 
-func (c *console) Wait() (*os.ProcessState, error) {
+func (c *console) findProcess() (*os.Process, error) {
 	if c.file == nil {
 		return nil, ErrProcessNotStarted
 	}
-
-	proc, err := os.FindProcess(int(c.Pid()))
-	if err != nil {
-		return nil, err
-	}
-	return proc.Wait()
-}
-
-func (c *console) Kill() error {
-	if c.file == nil {
-		return ErrProcessNotStarted
-	}
-
-	proc, err := os.FindProcess(int(c.Pid()))
-	if err != nil {
-		return err
-	}
-
-	return proc.Kill()
-}
-
-func (c *console) Signal(sig os.Signal) error {
-	if c.file == nil {
-		return ErrProcessNotStarted
-	}
-
-	proc, err := os.FindProcess(int(c.Pid()))
-	if err != nil {
-		return err
-	}
-
-	return proc.Signal(sig)
+	return os.FindProcess(c.Pid())
 }
