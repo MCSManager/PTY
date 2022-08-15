@@ -14,7 +14,7 @@ import (
 	"github.com/MCSManager/pty/utils"
 )
 
-//go:embed winpty/*
+//go:embed winpty/pty.zip
 var winpty_zip []byte
 
 var _ interfaces.Console = (*console)(nil)
