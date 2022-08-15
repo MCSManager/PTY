@@ -60,7 +60,7 @@ func (c *console) Start(dir string, command []string) error {
 }
 
 func (c *console) buildCmd(args []string) string {
-	var cmds = fmt.Sprintf("cmd /C chcp %s > nul && ", utils.CodePage(c.coder))
+	var cmds = fmt.Sprintf("cmd /C chcp %s > nul & ", utils.CodePage(c.coder))
 	for _, v := range args {
 		cmds += fmt.Sprintf("%s ", v)
 	}
@@ -96,7 +96,6 @@ func (c *console) UnloadEmbeddedDeps() (string, error) {
 		}
 		file.Close()
 	}
-
 	return dllDir, nil
 }
 

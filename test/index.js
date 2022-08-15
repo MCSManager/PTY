@@ -5,7 +5,7 @@ const readline = require("readline");
 
 // const command = JSON.stringify(['"C:\\Program Files\\Java\\jdk-17.0.2\\bin\\java"', "-jar", "paper-1.18.1-215.jar"]);
 // const command = JSON.stringify(["TerrariaServer.exe"]);
-const command = JSON.stringify(["开服.bat"]);
+const command = JSON.stringify(["java -jar PaperSpigot-1.8.8.jar -nogui"]);
 
 const p = spawn(
     "../pty.exe",
