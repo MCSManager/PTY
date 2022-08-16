@@ -119,13 +119,17 @@ func (c *console) stdOut() *os.File {
 	return c.file.StdOut
 }
 
-func (c *console) SetSize(cols uint, rows uint) {
+func (c *console) SetSize(cols uint, rows uint) error {
 	c.initialRows = rows
 	c.initialCols = cols
 	if c.file == nil {
-		return
+		return nil
 	}
-	c.file.SetSize(uint32(c.initialCols), uint32(c.initialRows))
+	err := c.file.SetSize(uint32(c.initialCols), uint32(c.initialRows))
+	if err.Error() != "The operation completed successfully." {
+		return err
+	}
+	return nil
 }
 
 func (c *console) Pid() int {

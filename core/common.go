@@ -129,8 +129,7 @@ func (c *console) ResizeWithString(sizeText string) error {
 	if cols < 0 || rows < 0 {
 		return fmt.Errorf("[MCSMANAGER-PTY] Failed to set window size")
 	}
-	c.SetSize(uint(cols), uint(rows))
-	return nil
+	return c.SetSize(uint(cols), uint(rows))
 }
 
 func (c *console) GetSize() (uint, uint) {

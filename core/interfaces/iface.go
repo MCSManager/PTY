@@ -11,7 +11,7 @@ type Console interface {
 	io.Writer
 	io.Closer
 
-	SetSize(cols uint, rows uint)
+	SetSize(cols uint, rows uint) error
 
 	ResizeWithString(sizeText string) error
 

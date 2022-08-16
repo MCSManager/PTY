@@ -52,7 +52,6 @@ func main() {
 	if err := con.ResizeWithString(ptySize); err != nil {
 		fmt.Println(err)
 	}
-
 	info, _ := json.Marshal(&PtyInfo{
 		Pid: con.Pid(),
 	})

@@ -59,13 +59,13 @@ func (c *console) stdOut() *os.File {
 	return c.file
 }
 
-func (c *console) SetSize(cols uint, rows uint) {
+func (c *console) SetSize(cols uint, rows uint) error {
 	c.initialRows = rows
 	c.initialCols = cols
 	if c.file == nil {
-		return
+		return nil
 	}
-	pty.Setsize(c.file, &pty.Winsize{Cols: uint16(cols), Rows: uint16(rows)})
+	return pty.Setsize(c.file, &pty.Winsize{Cols: uint16(cols), Rows: uint16(rows)})
 }
 
 func (c *console) Pid() int {
