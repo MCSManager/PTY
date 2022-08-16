@@ -31,9 +31,9 @@ func Test() {
 
 func lookInPath(path []string) string {
 	var shellPath string
-	for i := 0; i < len(path); i++ {
-		shellPath, _ = exec.LookPath(path[i])
-		if shellPath != "" {
+	for _, v := range path {
+		shellPath, _ = exec.LookPath(v)
+		if shellPath == "" {
 			continue
 		}
 	}
