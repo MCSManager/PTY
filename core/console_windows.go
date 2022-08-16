@@ -24,8 +24,8 @@ type console struct {
 	file  *winpty.WinPTY
 	coder string
 
-	initialCols int
-	initialRows int
+	initialCols uint
+	initialRows uint
 
 	env []string
 }
@@ -119,15 +119,13 @@ func (c *console) stdOut() *os.File {
 	return c.file.StdOut
 }
 
-func (c *console) SetSize(cols int, rows int) error {
+func (c *console) SetSize(cols uint, rows uint) {
 	c.initialRows = rows
 	c.initialCols = cols
-
 	if c.file == nil {
-		return nil
+		return
 	}
-
-	return c.file.SetSize(uint32(c.initialCols), uint32(c.initialRows))
+	c.file.SetSize(uint32(c.initialCols), uint32(c.initialRows))
 }
 
 func (c *console) Pid() int {

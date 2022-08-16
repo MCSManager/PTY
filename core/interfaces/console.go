@@ -11,11 +11,11 @@ type Console interface {
 	io.Writer
 	io.Closer
 
-	SetSize(cols int, rows int) error
+	SetSize(cols uint, rows uint)
 
 	ResizeWithString(sizeText string) error
 
-	GetSize() (int, int)
+	GetSize() (uint, uint)
 
 	Start(dir string, command []string) error
 

@@ -20,8 +20,8 @@ type console struct {
 	cmd   *exec.Cmd
 	coder string
 
-	initialCols int
-	initialRows int
+	initialCols uint
+	initialRows uint
 
 	env []string
 }
@@ -59,15 +59,13 @@ func (c *console) stdOut() *os.File {
 	return c.file
 }
 
-func (c *console) SetSize(cols int, rows int) error {
+func (c *console) SetSize(cols uint, rows uint) {
 	c.initialRows = rows
 	c.initialCols = cols
-
 	if c.file == nil {
-		return nil
+		return
 	}
-
-	return pty.Setsize(c.file, &pty.Winsize{Cols: uint16(cols), Rows: uint16(rows)})
+	pty.Setsize(c.file, &pty.Winsize{Cols: uint16(cols), Rows: uint16(rows)})
 }
 
 func (c *console) Pid() int {
