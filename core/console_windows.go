@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
 
 	"github.com/MCSManager/pty/core/go-winpty"
@@ -141,4 +142,12 @@ func (c *console) findProcess() (*os.Process, error) {
 		return nil, ErrProcessNotStarted
 	}
 	return os.FindProcess(c.Pid())
+}
+
+func (c *console) Kill() error {
+	_, err := c.findProcess()
+	if err != nil {
+		return err
+	}
+	return exec.Command("taskkill", "/F", "/T", "/PID", fmt.Sprint(c.Pid())).Run()
 }

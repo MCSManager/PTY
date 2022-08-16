@@ -97,21 +97,13 @@ func (c *console) Close() error {
 	return c.file.Close()
 }
 
-func (c *console) Wait() (*os.ProcessState, error) {
-	proc, err := c.findProcess()
-	if err != nil {
-		return nil, err
-	}
-	return proc.Wait()
-}
-
-func (c *console) Kill() error {
+func (c *console) Wait() error {
 	proc, err := c.findProcess()
 	if err != nil {
 		return err
 	}
-
-	return proc.Kill()
+	_, err = proc.Wait()
+	return err
 }
 
 func (c *console) Signal(sig os.Signal) error {

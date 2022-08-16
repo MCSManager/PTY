@@ -23,7 +23,7 @@ type Console interface {
 
 	Pid() int
 
-	Wait() (*os.ProcessState, error)
+	Wait() error
 
 	Kill() error
 

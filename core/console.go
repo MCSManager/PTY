@@ -6,6 +6,7 @@ package console
 import (
 	"os"
 	"os/exec"
+	"syscall"
 
 	"github.com/creack/pty"
 
@@ -82,4 +83,16 @@ func (c *console) findProcess() (*os.Process, error) {
 		return nil, ErrProcessNotStarted
 	}
 	return c.cmd.Process, nil
+}
+
+func (c *console) Kill() error {
+	proc, err := c.findProcess()
+	if err != nil {
+		return err
+	}
+	pgid, err := syscall.Getpgid(proc.Pid)
+	if err != nil {
+		return proc.Kill()
+	}
+	return syscall.Kill(-pgid, syscall.SIGKILL)
 }
