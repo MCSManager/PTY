@@ -15,7 +15,7 @@ import (
 	"github.com/MCSManager/pty/utils"
 )
 
-//go:embed winpty/pty.zip
+//go:embed winpty
 var winpty_zip []byte
 
 var _ interfaces.Console = (*console)(nil)
@@ -60,32 +60,27 @@ func (c *console) UnloadEmbeddedDeps() (string, error) {
 		return "", err
 	}
 
-	files := []string{"winpty.dll", "winpty-agent.exe"}
-	if len(files) != 0 {
-		reader := bytes.NewReader(winpty_zip)
-		for _, file := range files {
-			_, statErr := os.Stat(filepath.Join(dllDir, file))
-			if statErr == nil {
-				continue
-			} else {
-				unzip(reader, file, dllDir)
-			}
-		}
+	dirInfo, err := os.ReadDir(dllDir)
+	if err != nil {
+		return "", err
+	}
+	if len(dirInfo) != 2 {
+		unzip(bytes.NewReader(winpty_zip), dllDir)
 	}
 	return dllDir, nil
 }
 
-func unzip(f *bytes.Reader, fileName, targetPath string) error {
+func unzip(f *bytes.Reader, targetPath string) error {
 	zipReader, err := zip.NewReader(f, f.Size())
 	if err != nil {
 		return err
 	}
 	for _, f := range zipReader.File {
-		if f.Name != fileName {
+		fpath := filepath.Join(targetPath, f.Name)
+		info, statErr := os.Stat(fpath)
+		if statErr == nil && f.FileInfo().Size() == info.Size() {
 			continue
 		}
-		fpath := filepath.Join(targetPath, f.Name)
-
 		if err = os.MkdirAll(filepath.Dir(fpath), os.ModePerm); err != nil {
 			return err
 		}
