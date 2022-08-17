@@ -39,7 +39,6 @@ type WinPTY struct {
 	pty        uintptr
 	procHandle uintptr
 	closed     bool
-	exitCode   *int
 }
 
 func (pty *WinPTY) Pid() int {
@@ -191,12 +190,6 @@ func (pty *WinPTY) Close() error {
 
 }
 
-func (pty *WinPTY) Wait() error {
-	err := WaitForSingleObject(pty.procHandle, syscall.INFINITE)
-	pty.Close()
-	return err
-}
-
 func (pty *WinPTY) GetProcHandle() uintptr {
 	return pty.procHandle
 }
@@ -212,15 +205,4 @@ func SetAgentTimeout(winptyConfigT uintptr, timeoutMs uint64) {
 
 func SetMouseMode(winptyConfigT uintptr, mode int) {
 	winpty_config_set_mouse_mode.Call(winptyConfigT, uintptr(mode))
-}
-
-func (pty *WinPTY) ExitCode() int {
-	if pty.exitCode == nil {
-		code, err := GetExitCodeProcess(pty.procHandle)
-		if err != nil {
-			code = -1
-		}
-		pty.exitCode = &code
-	}
-	return *pty.exitCode
 }
