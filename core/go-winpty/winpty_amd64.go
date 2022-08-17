@@ -1,4 +1,5 @@
 //go:build windows
+// +build windows
 
 package winpty
 
@@ -8,52 +9,46 @@ import (
 	"unsafe"
 )
 
-func createAgentCfg(flags uint32) (uintptr, error) {
+func createAgentCfg(flags uint64) (uintptr, error) {
 	var errorPtr uintptr
-
-	err := winpty_error_free.Find() // check if dll available
-	if err != nil {
-		return uintptr(0), err
-	}
-
 	defer winpty_error_free.Call(errorPtr)
 
-	agentCfg, _, _ := winpty_config_new.Call(uintptr(flags), uintptr(unsafe.Pointer(errorPtr)))
-	if agentCfg == uintptr(0) {
-		return 0, fmt.Errorf("Unable to create agent config, %s", GetErrorMessage(errorPtr))
+	winptyConfigT, _, _ := winpty_config_new.Call(uintptr(flags), uintptr(unsafe.Pointer(errorPtr)))
+	if winptyConfigT == uintptr(0) {
+		return 0, fmt.Errorf("unable to create agent config, %s", GetErrorMessage(errorPtr))
 	}
 
-	return agentCfg, nil
+	return winptyConfigT, nil
 }
 
-func createSpawnCfg(flags uint32, appname, cmdline, cwd string, env []string) (uintptr, error) {
+func createSpawnCfg(flags uint32, filePath, cmdline, cwd string, env []string) (uintptr, error) {
 	var errorPtr uintptr
 	defer winpty_error_free.Call(errorPtr)
 
 	cmdLineStr, err := syscall.UTF16PtrFromString(cmdline)
 	if err != nil {
-		return 0, fmt.Errorf("Failed to convert cmd to pointer.")
+		return 0, fmt.Errorf("failed to convert cmd to pointer")
 	}
 
-	appNameStr, err := syscall.UTF16PtrFromString(appname)
+	filepath, err := syscall.UTF16PtrFromString(filePath)
 	if err != nil {
-		return 0, fmt.Errorf("Failed to convert app name to pointer.")
+		return 0, fmt.Errorf("failed to convert app name to pointer")
 	}
 
 	cwdStr, err := syscall.UTF16PtrFromString(cwd)
 	if err != nil {
-		return 0, fmt.Errorf("Failed to convert working directory to pointer.")
+		return 0, fmt.Errorf("failed to convert working directory to pointer")
 	}
 
 	envStr, err := UTF16PtrFromStringArray(env)
 
 	if err != nil {
-		return 0, fmt.Errorf("Failed to convert cmd to pointer.")
+		return 0, fmt.Errorf("failed to convert cmd to pointer")
 	}
 
 	spawnCfg, _, _ := winpty_spawn_config_new.Call(
 		uintptr(flags),
-		uintptr(unsafe.Pointer(appNameStr)),
+		uintptr(unsafe.Pointer(filepath)),
 		uintptr(unsafe.Pointer(cmdLineStr)),
 		uintptr(unsafe.Pointer(cwdStr)),
 		uintptr(unsafe.Pointer(envStr)),
@@ -61,7 +56,7 @@ func createSpawnCfg(flags uint32, appname, cmdline, cwd string, env []string) (u
 	)
 
 	if spawnCfg == uintptr(0) {
-		return 0, fmt.Errorf("Unable to create spawn config, %s", GetErrorMessage(errorPtr))
+		return 0, fmt.Errorf("unable to create spawn config, %s", GetErrorMessage(errorPtr))
 	}
 
 	return spawnCfg, nil

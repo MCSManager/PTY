@@ -21,8 +21,9 @@ var winpty_zip []byte
 var _ interfaces.Console = (*console)(nil)
 
 type console struct {
-	file  *winpty.WinPTY
-	coder string
+	file      *winpty.WinPTY
+	coder     string
+	colorAble bool
 
 	initialCols uint
 	initialRows uint
@@ -36,12 +37,7 @@ func (c *console) Start(dir string, command []string) error {
 		return err
 	}
 
-	if cmd, err := winpty.OpenWithOptions(winpty.Options{
-		DLLPrefix: dllDir,
-		Command:   c.buildCmd(command),
-		Dir:       dir,
-		Env:       c.env,
-	}); err != nil {
+	if cmd, err := winpty.OpenPTY(dllDir, c.buildCmd(command), dir, false); err != nil {
 		return err
 	} else {
 		c.file = cmd
@@ -65,12 +61,15 @@ func (c *console) UnloadEmbeddedDeps() (string, error) {
 	}
 
 	files := []string{"winpty.dll", "winpty-agent.exe"}
-	for _, file := range files {
-		_, statErr := os.Stat(filepath.Join(dllDir, file))
-		if statErr == nil {
-			continue
-		} else {
-			unzip(bytes.NewReader(winpty_zip), file, dllDir)
+	if len(files) != 0 {
+		reader := bytes.NewReader(winpty_zip)
+		for _, file := range files {
+			_, statErr := os.Stat(filepath.Join(dllDir, file))
+			if statErr == nil {
+				continue
+			} else {
+				unzip(reader, file, dllDir)
+			}
 		}
 	}
 	return dllDir, nil
@@ -86,37 +85,34 @@ func unzip(f *bytes.Reader, fileName, targetPath string) error {
 			continue
 		}
 		fpath := filepath.Join(targetPath, f.Name)
-		if f.FileInfo().IsDir() {
-			os.MkdirAll(fpath, os.ModePerm)
-		} else {
-			if err = os.MkdirAll(filepath.Dir(fpath), os.ModePerm); err != nil {
-				return err
-			}
-			inFile, err := f.Open()
-			if err != nil {
-				return err
-			}
-			outFile, err := os.OpenFile(fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
-			if err != nil {
-				return err
-			}
-			_, err = io.Copy(outFile, inFile)
-			if err != nil {
-				return err
-			}
-			inFile.Close()
-			outFile.Close()
+
+		if err = os.MkdirAll(filepath.Dir(fpath), os.ModePerm); err != nil {
+			return err
 		}
+		inFile, err := f.Open()
+		if err != nil {
+			return err
+		}
+		outFile, err := os.OpenFile(fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0777)
+		if err != nil {
+			return err
+		}
+		_, err = io.Copy(outFile, inFile)
+		if err != nil {
+			return err
+		}
+		inFile.Close()
+		outFile.Close()
 	}
 	return err
 }
 
 func (c *console) stdIn() *os.File {
-	return c.file.StdIn
+	return c.file.Stdin
 }
 
 func (c *console) stdOut() *os.File {
-	return c.file.StdOut
+	return c.file.Stdout
 }
 
 func (c *console) SetSize(cols uint, rows uint) error {
@@ -136,7 +132,7 @@ func (c *console) Pid() int {
 	if c.file == nil {
 		return 0
 	}
-	return c.file.GetPid()
+	return c.file.Pid()
 }
 
 func (c *console) findProcess() (*os.Process, error) {

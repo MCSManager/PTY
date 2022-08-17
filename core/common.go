@@ -21,15 +21,16 @@ var (
 
 type Console interfaces.Console
 
-func New(coder string) Console {
-	return newNative(coder)
+func New(coder string, colorAble bool) Console {
+	return newNative(coder, colorAble)
 }
 
-func newNative(coder string) Console {
+func newNative(coder string, colorAble bool) Console {
 	console := console{
 		initialCols: 50,
 		initialRows: 50,
 		coder:       coder,
+		colorAble:   colorAble,
 
 		file: nil,
 	}
@@ -41,9 +42,9 @@ func newNative(coder string) Console {
 	return &console
 }
 
-func (c *console) HandleStdIO(ColorAble bool) {
+func (c *console) HandleStdIO() {
 	go c.handleStdIn()
-	go c.handleStdOut(ColorAble)
+	go c.handleStdOut()
 }
 
 func (c *console) handleStdIn() {
@@ -54,9 +55,9 @@ func (c *console) handleStdIn() {
 	}
 }
 
-func (c *console) handleStdOut(ColorAble bool) {
+func (c *console) handleStdOut() {
 	var stdout io.Writer
-	if ColorAble {
+	if c.colorAble {
 		stdout = colorable.NewColorable(os.Stdout)
 	} else {
 		stdout = colorable.NewNonColorable(os.Stdout)
@@ -97,13 +98,12 @@ func (c *console) Close() error {
 	return c.file.Close()
 }
 
-func (c *console) Wait() error {
+func (c *console) Wait() (*os.ProcessState, error) {
 	proc, err := c.findProcess()
 	if err != nil {
-		return err
+		return nil, err
 	}
-	_, err = proc.Wait()
-	return err
+	return proc.Wait()
 }
 
 func (c *console) Signal(sig os.Signal) error {

@@ -23,11 +23,11 @@ type Console interface {
 
 	Pid() int
 
-	Wait() error
+	Wait() (*os.ProcessState, error)
 
 	Kill() error
 
 	Signal(sig os.Signal) error
 
-	HandleStdIO(ColorAble bool)
+	HandleStdIO()
 }

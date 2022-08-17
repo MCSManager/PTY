@@ -16,9 +16,10 @@ import (
 var _ interfaces.Console = (*console)(nil)
 
 type console struct {
-	file  *os.File
-	cmd   *exec.Cmd
-	coder string
+	file      *os.File
+	cmd       *exec.Cmd
+	coder     string
+	colorAble bool
 
 	initialCols uint
 	initialRows uint

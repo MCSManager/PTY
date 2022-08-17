@@ -1,4 +1,5 @@
 //go:build windows
+// +build windows
 
 package winpty
 
@@ -8,13 +9,22 @@ import (
 )
 
 const (
-	WINPTY_SPAWN_FLAG_AUTO_SHUTDOWN            = 1
+	WINPTY_SPAWN_FLAG_AUTO_SHUTDOWN       = 1
+	WINPTY_SPAWN_FLAG_EXIT_AFTER_SHUTDOWN = 2
+
+	WINPTY_FLAG_CONERR                         = 0x1
+	WINPTY_FLAG_PLAIN_OUTPUT                   = 0x2
+	WINPTY_FLAG_COLOR_ESCAPES                  = 0x4
 	WINPTY_FLAG_ALLOW_CURPROC_DESKTOP_CREATION = 0x8
+
+	WINPTY_MOUSE_MODE_NONE  = 0
+	WINPTY_MOUSE_MODE_AUTO  = 1
+	WINPTY_MOUSE_MODE_FORCE = 2
 )
 
 var (
 	modWinPTY *syscall.LazyDLL
-
+	kernel32  *syscall.LazyDLL
 	// Error handling...
 	winpty_error_code *syscall.LazyProc
 	winpty_error_msg  *syscall.LazyProc
@@ -43,11 +53,12 @@ var (
 	winpty_set_size          *syscall.LazyProc
 	winpty_free              *syscall.LazyProc
 
+	//windows api
 	GetProcessId *syscall.LazyProc
 )
 
 func init() {
-	kernel32 := syscall.NewLazyDLL("kernel32.dll")
+	kernel32 = syscall.NewLazyDLL("kernel32.dll")
 	GetProcessId = kernel32.NewProc("GetProcessId")
 }
 
@@ -58,7 +69,6 @@ func setupDefines(dllPrefix string) {
 	}
 
 	modWinPTY = syscall.NewLazyDLL(filepath.Join(dllPrefix, `winpty.dll`))
-
 	// Error handling...
 	winpty_error_code = modWinPTY.NewProc("winpty_error_code")
 	winpty_error_msg = modWinPTY.NewProc("winpty_error_msg")

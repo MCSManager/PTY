@@ -8,7 +8,6 @@ import (
 	"runtime"
 
 	pty "github.com/MCSManager/pty/core"
-	mytest "github.com/MCSManager/pty/test"
 )
 
 var dir, cmd, coder, ptySize string
@@ -36,16 +35,17 @@ func main() {
 	flag.Parse()
 
 	if test {
-		mytest.Test()
+		fmt.Print("0")
+		os.Exit(0)
 	}
 
-	con := pty.New(coder)
+	con := pty.New(coder, colorAble)
 
 	cmds := []string{}
 	json.Unmarshal([]byte(cmd), &cmds)
 	if err := con.Start(dir, cmds); err != nil {
 		fmt.Printf("[MCSMANAGER-PTY] Process Start Error: %v\n", err)
-		os.Exit(-1)
+		os.Exit(1)
 	}
 	defer con.Close()
 
@@ -57,6 +57,7 @@ func main() {
 	})
 	fmt.Println(string(info))
 
-	con.HandleStdIO(colorAble)
-	con.Wait()
+	con.HandleStdIO()
+	stats, _ := con.Wait()
+	os.Exit(stats.ExitCode())
 }
