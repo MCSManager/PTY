@@ -46,9 +46,8 @@ func (pty *WinPTY) Pid() int {
 	return int(pid)
 }
 
-// 这里不能讲一个file结构体赋值给一个WriteCloser的原因是file结构体的Close方法的第一个参数是一个file指针而不是file指针，也就是说接口方法的对应的结构体方法的第一个参数可以是结构体对或者结构体指针
 func (pty *WinPTY) GetStdin() io.Reader {
-	return pty.Stdin //这里的类型是机构体指针还是结构体本身取决于该结构体实现的接口方法的第一个参数是指针还是结构体
+	return pty.Stdin
 }
 
 func (pty *WinPTY) GetStdout() io.Writer {
@@ -60,13 +59,13 @@ func (pty *WinPTY) GetStderr() io.Writer {
 }
 
 // the same as open, but uses defaults for Env
-func OpenPTY(dllPrefix, cmd, dir string, isColor bool) (*WinPTY, error) {
+func OpenDefault(dllPrefix, cmd, dir string, isColor bool) (*WinPTY, error) {
 	var flag uint64 = WINPTY_FLAG_PLAIN_OUTPUT
 	if isColor {
 		flag = WINPTY_FLAG_COLOR_ESCAPES
 	}
-	flag = flag | WINPTY_FLAG_ALLOW_CURPROC_DESKTOP_CREATION
-	return CreateProcessWithOptions(Options{
+	// flag = flag | WINPTY_FLAG_ALLOW_CURPROC_DESKTOP_CREATION
+	return OpenWithOptions(Options{
 		DllDir:     dllPrefix,
 		Command:    cmd,
 		Dir:        dir,
@@ -95,7 +94,7 @@ func setOptsDefaultValues(options *Options) {
 	}
 }
 
-func CreateProcessWithOptions(options Options) (*WinPTY, error) {
+func OpenWithOptions(options Options) (*WinPTY, error) {
 	setOptsDefaultValues(&options)
 	setupDefines(options.DllDir)
 	// create config with specified AgentFlags

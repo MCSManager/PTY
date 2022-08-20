@@ -37,7 +37,22 @@ func (c *console) Start(dir string, command []string) error {
 		return err
 	}
 
-	if cmd, err := winpty.OpenPTY(dllDir, c.buildCmd(command), dir, false); err != nil {
+	option := winpty.Options{
+		DllDir:      dllDir,
+		Command:     c.buildCmd(command),
+		Dir:         dir,
+		Env:         c.env,
+		InitialCols: uint32(c.initialCols),
+		InitialRows: uint32(c.initialRows),
+	}
+
+	if c.colorAble {
+		option.AgentFlags = winpty.WINPTY_FLAG_COLOR_ESCAPES
+	} else {
+		option.AgentFlags = winpty.WINPTY_FLAG_PLAIN_OUTPUT
+	}
+
+	if cmd, err := winpty.OpenWithOptions(option); err != nil {
 		return err
 	} else {
 		c.file = cmd
