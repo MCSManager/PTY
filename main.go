@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"runtime"
 
 	pty "github.com/MCSManager/pty/core"
+	"github.com/mattn/go-colorable"
 )
 
 var dir, cmd, coder, ptySize string
@@ -36,20 +38,20 @@ func main() {
 
 	if test {
 		fmt.Print("0")
-		os.Exit(0)
+		return
 	}
 
 	con := pty.New(coder, colorAble)
 	if err := con.ResizeWithString(ptySize); err != nil {
 		fmt.Printf("[MCSMANAGER-PTY] Process Start Error: %v\n", err)
-		os.Exit(1)
+		return
 	}
 
 	cmds := []string{}
 	json.Unmarshal([]byte(cmd), &cmds)
 	if err := con.Start(dir, cmds); err != nil {
 		fmt.Printf("[MCSMANAGER-PTY] Process Start Error: %v\n", err)
-		os.Exit(1)
+		return
 	}
 	defer con.Close()
 
@@ -60,4 +62,22 @@ func main() {
 
 	HandleStdIO(con)
 	con.Wait()
+}
+
+func HandleStdIO(c pty.Console) {
+	go io.Copy(c.StdIn(), os.Stdin)
+	if runtime.GOOS == "windows" && c.StdErr() != nil {
+		go io.Copy(os.Stderr, c.StdErr())
+	}
+	handleStdOut(c)
+}
+
+func handleStdOut(c pty.Console) {
+	var stdout io.Writer
+	if colorAble {
+		stdout = colorable.NewColorable(os.Stdout)
+	} else {
+		stdout = colorable.NewNonColorable(os.Stdout)
+	}
+	io.Copy(stdout, c.StdOut())
 }

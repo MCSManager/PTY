@@ -12,7 +12,6 @@ import (
 	"github.com/creack/pty"
 
 	"github.com/MCSManager/pty/core/interfaces"
-	"github.com/MCSManager/pty/utils"
 )
 
 var _ interfaces.Console = (*console)(nil)
@@ -45,8 +44,8 @@ func (c *console) Start(dir string, command []string) error {
 	if err != nil {
 		return err
 	}
-	c.stdIn = utils.DecoderWriter(c.coder, f)
-	c.stdOut = utils.DecoderReader(c.coder, f)
+	c.stdIn = DecoderWriter(c.coder, f)
+	c.stdOut = DecoderReader(c.coder, f)
 	c.stdErr = nil
 	c.file = f
 	return nil

@@ -5,7 +5,6 @@ package winpty
 
 import (
 	"fmt"
-	"io"
 	"os"
 	"syscall"
 	"unsafe"
@@ -39,23 +38,6 @@ type WinPTY struct {
 	pty        uintptr
 	procHandle uintptr
 	closed     bool
-}
-
-func (pty *WinPTY) Pid() int {
-	pid, _, _ := GetProcessId.Call(pty.procHandle)
-	return int(pid)
-}
-
-func (pty *WinPTY) GetStdin() io.Reader {
-	return pty.Stdin
-}
-
-func (pty *WinPTY) GetStdout() io.Writer {
-	return pty.Stdout
-}
-
-func (pty *WinPTY) GetStderr() io.Writer {
-	return pty.Stderr
 }
 
 // the same as open, but uses defaults for Env
@@ -161,6 +143,11 @@ func OpenWithOptions(options Options) (*WinPTY, error) {
 		obj.pty = pty
 		return obj, nil
 	}
+}
+
+func (pty *WinPTY) Pid() int {
+	pid, _, _ := GetProcessId.Call(pty.procHandle)
+	return int(pid)
 }
 
 // 设置窗口大小

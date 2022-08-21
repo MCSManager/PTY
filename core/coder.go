@@ -1,4 +1,7 @@
-package utils
+//go:build !windows
+// +build !windows
+
+package console
 
 import (
 	"io"
