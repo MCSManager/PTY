@@ -51,13 +51,12 @@ func (c *console) Start(dir string, command []string) error {
 	} else {
 		option.AgentFlags = winpty.WINPTY_FLAG_PLAIN_OUTPUT
 	}
-
+	option.AgentFlags = option.AgentFlags | winpty.WINPTY_FLAG_CONERR
 	if cmd, err := winpty.OpenWithOptions(option); err != nil {
 		return err
 	} else {
 		c.file = cmd
 	}
-
 	return nil
 }
 
@@ -117,12 +116,16 @@ func unzip(f *bytes.Reader, targetPath string) error {
 	return err
 }
 
-func (c *console) stdIn() *os.File {
+func (c *console) StdIn() *os.File {
 	return c.file.Stdin
 }
 
-func (c *console) stdOut() *os.File {
+func (c *console) StdOut() *os.File {
 	return c.file.Stdout
+}
+
+func (c *console) StdErr() *os.File {
+	return c.file.Stderr
 }
 
 func (c *console) SetSize(cols uint, rows uint) error {

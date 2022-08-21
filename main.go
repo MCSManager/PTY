@@ -40,6 +40,10 @@ func main() {
 	}
 
 	con := pty.New(coder, colorAble)
+	if err := con.ResizeWithString(ptySize); err != nil {
+		fmt.Printf("[MCSMANAGER-PTY] Process Start Error: %v\n", err)
+		os.Exit(1)
+	}
 
 	cmds := []string{}
 	json.Unmarshal([]byte(cmd), &cmds)
@@ -49,15 +53,12 @@ func main() {
 	}
 	defer con.Close()
 
-	if err := con.ResizeWithString(ptySize); err != nil {
-		fmt.Println(err)
-	}
 	info, _ := json.Marshal(&PtyInfo{
 		Pid: con.Pid(),
 	})
 	fmt.Println(string(info))
 
-	con.HandleStdIO()
+	HandleStdIO(con)
 	stats, _ := con.Wait()
 	os.Exit(stats.ExitCode())
 }

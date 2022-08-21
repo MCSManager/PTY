@@ -3,15 +3,12 @@ package console
 import (
 	"errors"
 	"fmt"
-	"io"
 	"os"
 	"runtime"
 	"strconv"
 	"strings"
 
 	"github.com/MCSManager/pty/core/interfaces"
-	"github.com/MCSManager/pty/utils"
-	"github.com/mattn/go-colorable"
 )
 
 var (
@@ -22,13 +19,23 @@ var (
 type Console interfaces.Console
 
 func New(coder string, colorAble bool) Console {
-	return newNative(coder, colorAble)
+	return newNative(coder, colorAble, 50, 50)
 }
 
-func newNative(coder string, colorAble bool) Console {
+func NewWithSize(coder string, colorAble bool, Cols, Rows uint) Console {
+	return newNative(coder, colorAble, Cols, Rows)
+}
+
+func newNative(coder string, colorAble bool, Cols, Rows uint) Console {
+	if Cols == 0 {
+		Cols = 50
+	}
+	if Rows == 0 {
+		Rows = 50
+	}
 	console := console{
-		initialCols: 50,
-		initialRows: 50,
+		initialCols: Cols,
+		initialRows: Rows,
 		coder:       coder,
 		colorAble:   colorAble,
 
@@ -42,39 +49,12 @@ func newNative(coder string, colorAble bool) Console {
 	return &console
 }
 
-func (c *console) HandleStdIO() {
-	go c.handleStdIn()
-	go c.handleStdOut()
-}
-
-func (c *console) handleStdIn() {
-	if runtime.GOOS == "windows" {
-		io.Copy(c.stdIn(), os.Stdin)
-	} else {
-		io.Copy(c.stdIn(), utils.EncoderReader(c.coder, os.Stdin))
-	}
-}
-
-func (c *console) handleStdOut() {
-	var stdout io.Writer
-	if c.colorAble {
-		stdout = colorable.NewColorable(os.Stdout)
-	} else {
-		stdout = colorable.NewNonColorable(os.Stdout)
-	}
-	if runtime.GOOS == "windows" {
-		io.Copy(stdout, c.stdOut())
-	} else {
-		io.Copy(stdout, utils.DecoderReader(c.coder, c.stdOut()))
-	}
-}
-
 func (c *console) Read(b []byte) (int, error) {
 	if c.file == nil {
 		return 0, ErrProcessNotStarted
 	}
 
-	return c.stdOut().Read(b)
+	return c.StdOut().Read(b)
 }
 
 func (c *console) Write(b []byte) (int, error) {
@@ -82,7 +62,7 @@ func (c *console) Write(b []byte) (int, error) {
 		return 0, ErrProcessNotStarted
 	}
 
-	return c.stdIn().Write(b)
+	return c.StdIn().Write(b)
 }
 
 func (c *console) AddENV(environ []string) error {
@@ -119,15 +99,15 @@ func (c *console) Signal(sig os.Signal) error {
 func (c *console) ResizeWithString(sizeText string) error {
 	arr := strings.Split(sizeText, ",")
 	if len(arr) != 2 {
-		return fmt.Errorf("[MCSMANAGER-PTY] The parameter is incorrect")
+		return fmt.Errorf("the parameter is incorrect")
 	}
 	cols, err1 := strconv.Atoi(arr[0])
 	rows, err2 := strconv.Atoi(arr[1])
 	if err1 != nil || err2 != nil {
-		return fmt.Errorf("[MCSMANAGER-PTY] Failed to set window size")
+		return fmt.Errorf("failed to set window size")
 	}
 	if cols < 0 || rows < 0 {
-		return fmt.Errorf("[MCSMANAGER-PTY] Failed to set window size")
+		return fmt.Errorf("failed to set window size")
 	}
 	return c.SetSize(uint(cols), uint(rows))
 }

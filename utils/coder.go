@@ -24,8 +24,7 @@ var chcp = map[string]string{
 }
 
 func CodePage(types string) string {
-	types = strings.ToUpper(types)
-	if cp, ok := chcp[types]; ok {
+	if cp, ok := chcp[strings.ToUpper(types)]; ok {
 		return cp
 	}
 	return chcp["UTF-8"]

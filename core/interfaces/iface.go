@@ -29,5 +29,9 @@ type Console interface {
 
 	Signal(sig os.Signal) error
 
-	HandleStdIO()
+	StdIn() *os.File
+
+	StdOut() *os.File
+
+	StdErr() *os.File
 }

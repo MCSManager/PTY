@@ -35,7 +35,7 @@ func (c *console) Start(dir string, command []string) error {
 	c.cmd = cmd
 	cmd.Dir = dir
 	cmd.Env = c.env
-	f, err := pty.Start(cmd)
+	f, err := pty.StartWithSize(cmd, &pty.Winsize{Rows: uint16(c.initialRows), Cols: uint16(c.initialCols)})
 	if err != nil {
 		return err
 	}
@@ -52,12 +52,16 @@ func (c *console) buildCmd(args []string) (*exec.Cmd, error) {
 	return cmd, nil
 }
 
-func (c *console) stdIn() *os.File {
+func (c *console) StdIn() *os.File {
 	return c.file
 }
 
-func (c *console) stdOut() *os.File {
+func (c *console) StdOut() *os.File {
 	return c.file
+}
+
+func (c *console) StdErr() *os.File {
+	return nil
 }
 
 func (c *console) SetSize(cols uint, rows uint) error {
