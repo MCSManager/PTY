@@ -4,6 +4,7 @@
 package console
 
 import (
+	"io"
 	"os"
 	"os/exec"
 	"syscall"
@@ -11,6 +12,7 @@ import (
 	"github.com/creack/pty"
 
 	"github.com/MCSManager/pty/core/interfaces"
+	"github.com/MCSManager/pty/utils"
 )
 
 var _ interfaces.Console = (*console)(nil)
@@ -20,6 +22,10 @@ type console struct {
 	cmd       *exec.Cmd
 	coder     string
 	colorAble bool
+
+	stdIn  io.Writer
+	stdOut io.Reader
+	stdErr io.Reader // nil
 
 	initialCols uint
 	initialRows uint
@@ -39,7 +45,9 @@ func (c *console) Start(dir string, command []string) error {
 	if err != nil {
 		return err
 	}
-
+	c.stdIn = utils.DecoderWriter(c.coder, f)
+	c.stdOut = utils.DecoderReader(c.coder, f)
+	c.stdErr = nil
 	c.file = f
 	return nil
 }
@@ -52,15 +60,15 @@ func (c *console) buildCmd(args []string) (*exec.Cmd, error) {
 	return cmd, nil
 }
 
-func (c *console) StdIn() *os.File {
-	return c.file
+func (c *console) StdIn() io.Writer {
+	return c.stdIn
 }
 
-func (c *console) StdOut() *os.File {
-	return c.file
+func (c *console) StdOut() io.Reader {
+	return c.stdOut
 }
 
-func (c *console) StdErr() *os.File {
+func (c *console) StdErr() io.Reader {
 	return nil
 }
 

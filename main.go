@@ -59,6 +59,5 @@ func main() {
 	fmt.Println(string(info))
 
 	HandleStdIO(con)
-	stats, _ := con.Wait()
-	os.Exit(stats.ExitCode())
+	con.Wait()
 }

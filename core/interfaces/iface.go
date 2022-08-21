@@ -29,9 +29,9 @@ type Console interface {
 
 	Signal(sig os.Signal) error
 
-	StdIn() *os.File
+	StdIn() io.Writer
 
-	StdOut() *os.File
+	StdOut() io.Reader
 
-	StdErr() *os.File
+	StdErr() io.Reader
 }

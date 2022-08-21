@@ -25,6 +25,10 @@ type console struct {
 	coder     string
 	colorAble bool
 
+	stdIn  io.Writer
+	stdOut io.Reader
+	stdErr io.Reader
+
 	initialCols uint
 	initialRows uint
 
@@ -55,6 +59,9 @@ func (c *console) Start(dir string, command []string) error {
 	if cmd, err := winpty.OpenWithOptions(option); err != nil {
 		return err
 	} else {
+		c.stdIn = cmd.Stdin
+		c.stdOut = cmd.Stdout
+		c.stdErr = cmd.Stderr
 		c.file = cmd
 	}
 	return nil
@@ -116,16 +123,16 @@ func unzip(f *bytes.Reader, targetPath string) error {
 	return err
 }
 
-func (c *console) StdIn() *os.File {
-	return c.file.Stdin
+func (c *console) StdIn() io.Writer {
+	return c.stdIn
 }
 
-func (c *console) StdOut() *os.File {
-	return c.file.Stdout
+func (c *console) StdOut() io.Reader {
+	return c.stdOut
 }
 
-func (c *console) StdErr() *os.File {
-	return c.file.Stderr
+func (c *console) StdErr() io.Reader {
+	return c.stdErr
 }
 
 func (c *console) SetSize(cols uint, rows uint) error {
