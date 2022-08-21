@@ -9,10 +9,10 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/MCSManager/pty/core/go-winpty"
 	"github.com/MCSManager/pty/core/interfaces"
-	"github.com/MCSManager/pty/utils"
 )
 
 //go:embed winpty
@@ -68,11 +68,29 @@ func (c *console) Start(dir string, command []string) error {
 }
 
 func (c *console) buildCmd(args []string) string {
-	var cmds = fmt.Sprintf("cmd /C chcp %s > nul & ", utils.CodePage(c.coder))
+	var cmds = fmt.Sprintf("cmd /C chcp %s > nul & ", codePage(c.coder))
 	for _, v := range args {
 		cmds += fmt.Sprintf("%s ", v)
 	}
 	return cmds
+}
+
+var chcp = map[string]string{
+	"UTF-8":     "65001",
+	"UTF-16":    "1200",
+	"GBK":       "936",
+	"GB2312":    "936",
+	"GB18030":   "54936",
+	"BIG5":      "950",
+	"KS_C_5601": "949",
+	"SHIFTJIS":  "932",
+}
+
+func codePage(types string) string {
+	if cp, ok := chcp[strings.ToUpper(types)]; ok {
+		return cp
+	}
+	return chcp["UTF-8"]
 }
 
 func (c *console) UnloadEmbeddedDeps() (string, error) {
