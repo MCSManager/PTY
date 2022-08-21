@@ -180,6 +180,9 @@ func (pty *WinPTY) Close() error {
 	winpty_free.Call(pty.pty)
 	pty.Stdin.Close()
 	pty.Stdout.Close()
+	if pty.Stderr != nil {
+		pty.Stderr.Close()
+	}
 	err := syscall.CloseHandle(syscall.Handle(pty.procHandle))
 	if err != nil {
 		return err
