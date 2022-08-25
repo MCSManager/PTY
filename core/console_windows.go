@@ -95,7 +95,7 @@ func codePage(types string) string {
 
 func (c *console) UnloadEmbeddedDeps() (string, error) {
 	dllDir := filepath.Join(os.TempDir(), "pty_winpty")
-	if err := os.MkdirAll(dllDir, 0755); err != nil {
+	if err := os.MkdirAll(dllDir, os.ModePerm); err != nil {
 		return "", err
 	}
 
@@ -119,7 +119,7 @@ func unzip(f *bytes.Reader, targetPath string) error {
 		if err != nil {
 			return err
 		}
-		outFile, err := os.OpenFile(fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0777)
+		outFile, err := os.OpenFile(fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, os.ModePerm)
 		if err != nil {
 			return err
 		}
