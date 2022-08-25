@@ -99,13 +99,8 @@ func (c *console) UnloadEmbeddedDeps() (string, error) {
 		return "", err
 	}
 
-	dirInfo, err := os.ReadDir(dllDir)
-	if err != nil {
-		return "", err
-	}
-	if len(dirInfo) != 2 {
-		unzip(bytes.NewReader(winpty_zip), dllDir)
-	}
+	unzip(bytes.NewReader(winpty_zip), dllDir)
+
 	return dllDir, nil
 }
 
@@ -119,9 +114,6 @@ func unzip(f *bytes.Reader, targetPath string) error {
 		info, statErr := os.Stat(fpath)
 		if statErr == nil && f.FileInfo().Size() == info.Size() {
 			continue
-		}
-		if err = os.MkdirAll(filepath.Dir(fpath), os.ModePerm); err != nil {
-			return err
 		}
 		inFile, err := f.Open()
 		if err != nil {
