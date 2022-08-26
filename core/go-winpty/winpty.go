@@ -24,7 +24,7 @@ type Options struct {
 	// AgentFlags to pass to agent config creation
 	AgentFlags uint64
 	SpawnFlag  uint32
-	MouseModes int
+	MouseModes uint
 	// Initial size for Columns and Rows
 	InitialCols    uint32
 	InitialRows    uint32
@@ -57,21 +57,20 @@ func OpenDefault(dllPrefix, cmd, dir string, isColor bool) (*WinPTY, error) {
 }
 
 func setOptsDefaultValues(options *Options) {
-	// Set the initial size to 40x40 if options is 0
-	if options.InitialCols <= 0 {
-		options.InitialCols = 40
+	if options.InitialCols <= 5 {
+		options.InitialCols = 50
 	}
-	if options.InitialRows <= 0 {
-		options.InitialRows = 40
+	if options.InitialRows <= 5 {
+		options.InitialRows = 50
 	}
 	if options.agentTimeoutMs == nil {
 		t := uint64(syscall.INFINITE)
 		options.agentTimeoutMs = &t
 	}
-	if options.SpawnFlag == 0 {
+	if options.SpawnFlag != 1 && options.SpawnFlag != 2 {
 		options.SpawnFlag = 1
 	}
-	if options.MouseModes < 0 {
+	if options.MouseModes >= 3 {
 		options.MouseModes = 0
 	}
 }
@@ -192,6 +191,6 @@ func SetAgentTimeout(winptyConfigT uintptr, timeoutMs uint64) {
 	winpty_config_set_agent_timeout.Call(winptyConfigT, uintptr(timeoutMs))
 }
 
-func SetMouseMode(winptyConfigT uintptr, mode int) {
+func SetMouseMode(winptyConfigT uintptr, mode uint) {
 	winpty_config_set_mouse_mode.Call(winptyConfigT, uintptr(mode))
 }
