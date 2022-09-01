@@ -4,9 +4,13 @@
 [![--](https://img.shields.io/badge/Support-Windows/Linux-yellow.svg)](https://github.com/MCSManager)
 [![--](https://img.shields.io/badge/License-MIT-red.svg)](https://github.com/MCSManager)
 
-仿真终端应用程序，支持运行**所有 Linux/Windows 程序**，可以为您的更高层应用带来完全终端控制能力。
 
-中文 | [English](README_EN.md)
+[English](READNE.md) | [简体中文](README_CN.md)
+
+<br />
+
+## What is PTY?
+
 
 <div align=center>
 
@@ -14,30 +18,31 @@
 
 </div>
 
-> 图片中表示的是，使用仿真终端运行`htop`命令的结果，再将内容发送到 Web 网页上并与之进行交互。
 
-<br />
-
-## 什么是 PTY/TTY？
 
 tty = "teletype"，pty = "pseudo-teletype"
 
-众所周知，程序拥有输入与输出流，但是数据流与显示器之间有一个区别，那便是缺少行和高的排列维度。简而言之，PTY 的中文意义就是伪装设备终端，让我们的程序伪装成一个拥有固定高宽的显示器，接受来自程序的输出内容。
+In UNIX, /dev/tty\* is any device that acts like a "teletype"
+
+A pty is a pseudotty, a device entry that acts like a terminal to the process reading and writing there,
+but is managed by something else.
+They first appeared for X Window and screen and the like,
+where you needed something that acted like a terminal but could be used from another program.
 
 <br />
 
-## 使用
+## Quickstart
 
-开一个 PTY 并执行命令，设置固定窗口大小，IO 流直接转发。
+Start a PTY and set window size.
 
-- 注意：-cmd 接收的是一个数组, 命令的参数以数组的形式传递，且需要序列化，如：`[\"java\",\"-jar\",\"ser.jar\",\"nogui\"]`
+- Note: -cmd receives an array, and the parameters of the command are passed in the form of an array and needs to be serialized, such as：`[\"java\",\"-jar\",\"ser.jar\",\"nogui\"]`
 
 ```bash
 go build
 ./pty -dir "." -cmd [\"bash\"] -size 50,50
 ```
 
-接下来您会得到一个设置好大小宽度的窗口，并且您可以像 SSH 终端一样，进行任何交互。
+You can execute any command, just like the SSH terminal.
 
 ```
 ping google.com
@@ -47,7 +52,7 @@ htop
 
 <br />
 
-## 参数：
+## Flags:
 
 ```
   -cmd string
@@ -66,37 +71,30 @@ htop
 
 <br />
 
-## 兼容性
-
-- 支持所有现代主流版本 Linux 系统。
-- 支持 Windows 7 到 Windows 11 所有版本系统，包括 Server 系列。
-- 支持 windows amd64 / linux amd64 & arm64。
-
-
-<br />
-
 ## MCSManager
 
-MCSManager 是一款开源，分布式，开箱即用，支持 Minecraft 和其他控制台应用的程序管理面板。
+MCSManager is Distributed, out-of-the-box, supports docker,
+supports Minecraft and other game server management panel for the Chinese market.
 
-这个程序是专门为了 MCSManager 而设计，您也可以尝试嵌入到您自己的程序中。
+This application will provide PTY functionality for MCSManager,
+it is specifically designed for MCSManager,
+you can also try porting to your own application.
 
 More info: [https://github.com/mcsmanager](https://github.com/mcsmanager)
 
 <br />
 
-## 贡献
+## Contributing
 
-此程序属于 MCSManager 的最重要的核心功能之一，非必要不新增功能。
+Interested in getting involved?
 
-- 如果您想为这个项目提供新功能，那您必须开一个 `issue` 说明此功能，并提供编程思路，我们一起经过讨论后再决定是否开发
-
-- 如果您是修复 BUG，可以直接提交 PR 并说明情况
+- If you want to add a new feature, please create an issue first to describe the new feature, as well as the implementation approach. Once a proposal is accepted, create an implementation of the new features and submit it as a pull request.
+- If you are just fixing bugs, you can simply submit PR.
 
 <br />
 
 ## MIT license
 
-遵循 [MIT License](https://opensource.org/licenses/MIT) 开源协议。
+Released under the [MIT License](https://opensource.org/licenses/MIT).
 
-版权所有 [zijiren233](https://github.com/zijiren233) 和贡献者们。
+Copyright 2022 [zijiren233](https://github.com/zijiren233) and contributors.
