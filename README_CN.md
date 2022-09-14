@@ -6,7 +6,7 @@
 
 仿真终端应用程序，支持运行**所有 Linux/Windows 程序**，可以为您的更高层应用带来完全终端控制能力。
 
-中文 | [English](README_EN.md)
+中文 | [English](README.md)
 
 <div align=center>
 

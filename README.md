@@ -5,7 +5,7 @@
 [![--](https://img.shields.io/badge/License-MIT-red.svg)](https://github.com/MCSManager)
 
 
-[English](READNE.md) | [简体中文](README_CN.md)
+English | [简体中文](README_CN.md)
 
 <br />
 
