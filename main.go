@@ -12,8 +12,11 @@ import (
 	"github.com/mattn/go-colorable"
 )
 
-var dir, cmd, coder, ptySize string
-var colorAble bool
+var (
+	dir, cmd, coder, ptySize string
+	cmds                     []string
+	colorAble                bool
+)
 
 type PtyInfo struct {
 	Pid int `json:"pid"`
@@ -34,25 +37,24 @@ func init() {
 
 func main() {
 	flag.Parse()
+	json.Unmarshal([]byte(cmd), &cmds)
 
 	con := pty.New(coder, colorAble)
 	if err := con.ResizeWithString(ptySize); err != nil {
-		fmt.Printf("[MCSMANAGER-PTY] Process Start Error: %v\n", err)
+		fmt.Printf("[MCSMANAGER-PTY] PTY ReSize Error: %v\n", err)
 		return
 	}
 
-	cmds := []string{}
-	json.Unmarshal([]byte(cmd), &cmds)
-	if err := con.Start(dir, cmds); err != nil {
-		fmt.Printf("[MCSMANAGER-PTY] Process Start Error: %v\n", err)
-		return
-	}
-	defer con.Close()
-
+	err := con.Start(dir, cmds)
 	info, _ := json.Marshal(&PtyInfo{
 		Pid: con.Pid(),
 	})
 	fmt.Println(string(info))
+	if err != nil {
+		fmt.Printf("[MCSMANAGER-PTY] Process Start Error: %v\n", err)
+		return
+	}
+	defer con.Close()
 
 	HandleStdIO(con)
 	con.Wait()
