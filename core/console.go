@@ -38,9 +38,9 @@ func (c *console) Start(dir string, command []string) error {
 	if err != nil {
 		return err
 	}
-	if cwd, err := filepath.Abs(dir); err != nil {
+	if dir, err = filepath.Abs(dir); err != nil {
 		return err
-	} else if err := os.Chdir(cwd); err != nil {
+	} else if err := os.Chdir(dir); err != nil {
 		return err
 	}
 	c.cmd = cmd
