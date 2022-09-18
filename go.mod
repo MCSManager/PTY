@@ -1,6 +1,6 @@
 module github.com/MCSManager/pty
 
-go 1.19
+go 1.18
 
 require (
 	github.com/creack/pty v1.1.18
