@@ -45,9 +45,13 @@ func (c *console) Start(dir string, command []string) error {
 	} else if err := os.Chdir(dir); err != nil {
 		return err
 	}
+	cmd, err := c.buildCmd(command)
+	if err != nil {
+		return err
+	}
 	option := winpty.Options{
 		DllDir:      dllDir,
-		Command:     c.buildCmd(command),
+		Command:     cmd,
 		Dir:         dir,
 		Env:         c.env,
 		InitialCols: uint32(c.initialCols),
@@ -71,17 +75,19 @@ func (c *console) Start(dir string, command []string) error {
 	return nil
 }
 
-func (c *console) buildCmd(args []string) string {
+func (c *console) buildCmd(args []string) (string, error) {
 	var cmds = fmt.Sprintf("cmd /C chcp %s > nul & ", codePage(c.coder))
-	if file, err := exec.LookPath(args[0]); err == nil {
-		if path, err := filepath.Abs(file); err == nil {
-			args[0] = path
-		}
+	if file, err := exec.LookPath(args[0]); err != nil {
+		return "", err
+	} else if path, err := filepath.Abs(file); err != nil {
+		return "", err
+	} else {
+		args[0] = path
 	}
 	for _, v := range args {
 		cmds += fmt.Sprintf("%s ", v)
 	}
-	return cmds
+	return cmds, nil
 }
 
 var chcp = map[string]string{
