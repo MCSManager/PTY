@@ -69,6 +69,9 @@ func (c *console) Start(dir string, command []string) error {
 
 func (c *console) buildCmd(args []string) string {
 	var cmds = fmt.Sprintf("cmd /C chcp %s > nul & ", codePage(c.coder))
+	if path, err := filepath.Abs(args[0]); err == nil {
+		args[0] = path
+	}
 	for _, v := range args {
 		cmds += fmt.Sprintf("%s ", v)
 	}
