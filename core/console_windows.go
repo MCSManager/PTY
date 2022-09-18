@@ -40,7 +40,11 @@ func (c *console) Start(dir string, command []string) error {
 	if err != nil {
 		return err
 	}
-
+	if cwd, err := filepath.Abs(dir); err != nil {
+		return err
+	} else if err := os.Chdir(cwd); err != nil {
+		return err
+	}
 	option := winpty.Options{
 		DllDir:      dllDir,
 		Command:     c.buildCmd(command),
@@ -73,9 +77,6 @@ func (c *console) buildCmd(args []string) string {
 		if path, err := filepath.Abs(file); err == nil {
 			args[0] = path
 		}
-	}
-	if path, err := filepath.Abs(args[0]); err == nil {
-		args[0] = path
 	}
 	for _, v := range args {
 		cmds += fmt.Sprintf("%s ", v)
