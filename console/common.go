@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/MCSManager/pty/core/interfaces"
+	"github.com/MCSManager/pty/console/iface"
 )
 
 var (
@@ -16,7 +16,7 @@ var (
 	ErrInvalidCmd        = errors.New("invalid command")
 )
 
-type Console interfaces.Console
+type Console iface.Console
 
 func New(coder string, colorAble bool) Console {
 	return newNative(coder, colorAble, 50, 50)

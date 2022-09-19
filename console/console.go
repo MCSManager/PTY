@@ -10,12 +10,11 @@ import (
 	"path/filepath"
 	"syscall"
 
+	"github.com/MCSManager/pty/console/iface"
 	"github.com/creack/pty"
-
-	"github.com/MCSManager/pty/core/interfaces"
 )
 
-var _ interfaces.Console = (*console)(nil)
+var _ iface.Console = (*console)(nil)
 
 type console struct {
 	file      *os.File

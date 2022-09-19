@@ -13,15 +13,15 @@ import (
 	"strings"
 	"time"
 
-	"github.com/MCSManager/pty/core/go-winpty"
-	"github.com/MCSManager/pty/core/interfaces"
+	"github.com/MCSManager/pty/console/go-winpty"
+	"github.com/MCSManager/pty/console/iface"
 	"github.com/juju/fslock"
 )
 
 //go:embed winpty
 var winpty_zip []byte
 
-var _ interfaces.Console = (*console)(nil)
+var _ iface.Console = (*console)(nil)
 
 type console struct {
 	file      *winpty.WinPTY
