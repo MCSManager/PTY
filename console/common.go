@@ -3,6 +3,7 @@ package console
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"runtime"
 	"strconv"
@@ -18,10 +19,12 @@ var (
 
 type Console iface.Console
 
+// Create a new pty
 func New(coder string, colorAble bool) Console {
 	return newNative(coder, colorAble, 50, 50)
 }
 
+// Create a new pty and initialize the size
 func NewWithSize(coder string, colorAble bool, Cols, Rows uint) Console {
 	return newNative(coder, colorAble, Cols, Rows)
 }
@@ -49,6 +52,7 @@ func newNative(coder string, colorAble bool, Cols, Rows uint) Console {
 	return &console
 }
 
+// Read data from pty console
 func (c *console) Read(b []byte) (int, error) {
 	if c.file == nil {
 		return 0, ErrProcessNotStarted
@@ -57,6 +61,7 @@ func (c *console) Read(b []byte) (int, error) {
 	return c.StdOut().Read(b)
 }
 
+// Write data to the pty console
 func (c *console) Write(b []byte) (int, error) {
 	if c.file == nil {
 		return 0, ErrProcessNotStarted
@@ -65,11 +70,25 @@ func (c *console) Write(b []byte) (int, error) {
 	return c.StdIn().Write(b)
 }
 
+func (c *console) StdIn() io.Writer {
+	return c.stdIn
+}
+
+func (c *console) StdOut() io.Reader {
+	return c.stdOut
+}
+
+func (c *console) StdErr() io.Reader {
+	return c.stdErr
+}
+
+// Add environment variables before start
 func (c *console) AddENV(environ []string) error {
 	c.env = append(c.env, environ...)
 	return nil
 }
 
+// close the pty and kill the subroutine
 func (c *console) Close() error {
 	if c.file == nil {
 		return ErrProcessNotStarted
@@ -78,6 +97,7 @@ func (c *console) Close() error {
 	return c.file.Close()
 }
 
+// wait for the pty subroutine to exit
 func (c *console) Wait() (*os.ProcessState, error) {
 	proc, err := c.findProcess()
 	if err != nil {
@@ -86,6 +106,7 @@ func (c *console) Wait() (*os.ProcessState, error) {
 	return proc.Wait()
 }
 
+// Send system signals to pty subroutines
 func (c *console) Signal(sig os.Signal) error {
 	proc, err := c.findProcess()
 	if err != nil {
@@ -112,6 +133,7 @@ func (c *console) ResizeWithString(sizeText string) error {
 	return c.SetSize(uint(cols), uint(rows))
 }
 
+// Get pty window size
 func (c *console) GetSize() (uint, uint) {
 	return c.initialCols, c.initialRows
 }

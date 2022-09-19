@@ -38,6 +38,7 @@ type console struct {
 	env []string
 }
 
+// start pty subroutine
 func (c *console) Start(dir string, command []string) error {
 	dllDir, err := c.UnloadEmbeddedDeps()
 	if err != nil {
@@ -169,18 +170,7 @@ func releases(f *bytes.Reader, targetPath string) error {
 	return nil
 }
 
-func (c *console) StdIn() io.Writer {
-	return c.stdIn
-}
-
-func (c *console) StdOut() io.Reader {
-	return c.stdOut
-}
-
-func (c *console) StdErr() io.Reader {
-	return c.stdErr
-}
-
+// set pty window size
 func (c *console) SetSize(cols uint, rows uint) error {
 	c.initialRows = rows
 	c.initialCols = cols
@@ -194,10 +184,12 @@ func (c *console) SetSize(cols uint, rows uint) error {
 	return nil
 }
 
+// Get the process id of the pty subprogram
 func (c *console) Pid() int {
 	if c.file == nil {
 		return 0
 	}
+
 	return c.file.Pid()
 }
 
@@ -208,6 +200,7 @@ func (c *console) findProcess() (*os.Process, error) {
 	return os.FindProcess(c.Pid())
 }
 
+// Force kill pty subroutine
 func (c *console) Kill() error {
 	_, err := c.findProcess()
 	if err != nil {
