@@ -2,6 +2,7 @@ package console
 
 import (
 	"archive/zip"
+	"bufio"
 	"bytes"
 	_ "embed"
 	"fmt"
@@ -10,9 +11,11 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/MCSManager/pty/core/go-winpty"
 	"github.com/MCSManager/pty/core/interfaces"
+	"github.com/juju/fslock"
 )
 
 //go:embed winpty
@@ -113,17 +116,22 @@ func (c *console) UnloadEmbeddedDeps() (string, error) {
 	if err := os.MkdirAll(dllDir, os.ModePerm); err != nil {
 		return "", err
 	}
-
-	unzip(bytes.NewReader(winpty_zip), dllDir)
-
+	if err := releases(bytes.NewReader(winpty_zip), dllDir); err != nil {
+		return "", err
+	}
 	return dllDir, nil
 }
 
-func unzip(f *bytes.Reader, targetPath string) error {
+func releases(f *bytes.Reader, targetPath string) error {
 	zipReader, err := zip.NewReader(f, f.Size())
 	if err != nil {
 		return err
 	}
+	flock := fslock.New(targetPath + `lock`)
+	if err := flock.LockWithTimeout(time.Second * 3); err != nil {
+		return err
+	}
+	defer flock.Unlock()
 	for _, f := range zipReader.File {
 		fpath := filepath.Join(targetPath, f.Name)
 		info, statErr := os.Stat(fpath)
@@ -138,12 +146,19 @@ func unzip(f *bytes.Reader, targetPath string) error {
 		if err != nil {
 			return err
 		}
-		_, err = io.Copy(outFile, inFile)
-		if err != nil {
+		buf := bufio.NewWriter(outFile)
+		if _, err = io.Copy(buf, inFile); err != nil {
 			return err
 		}
-		inFile.Close()
-		outFile.Close()
+		if err := buf.Flush(); err != nil {
+			return err
+		}
+		if err := inFile.Close(); err != nil {
+			return err
+		}
+		if err := outFile.Close(); err != nil {
+			return err
+		}
 	}
 	return err
 }
