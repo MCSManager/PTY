@@ -58,7 +58,7 @@ func (c *console) Start(dir string, command []string) error {
 }
 
 func (c *console) buildCmd(args []string) (*exec.Cmd, error) {
-	if len(args) < 1 {
+	if len(args) == 0 {
 		return nil, ErrInvalidCmd
 	}
 	if file, err := exec.LookPath(args[0]); err != nil {

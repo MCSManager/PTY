@@ -12,8 +12,8 @@ import (
 )
 
 var (
-	ErrProcessNotStarted = errors.New("[MCSMANAGER-PTY] Process has not been started")
-	ErrInvalidCmd        = errors.New("[MCSMANAGER-PTY] Invalid command")
+	ErrProcessNotStarted = errors.New("process has not been started")
+	ErrInvalidCmd        = errors.New("invalid command")
 )
 
 type Console interfaces.Console
