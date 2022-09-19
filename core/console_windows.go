@@ -115,7 +115,14 @@ func codePage(types string) string {
 }
 
 func (c *console) UnloadEmbeddedDeps() (string, error) {
+	flock := fslock.New(filepath.Join(os.TempDir(), "pty_winpty_lock"))
+	if err := flock.LockWithTimeout(time.Second * 3); err != nil {
+		return "", err
+	}
+	defer flock.Unlock()
+
 	dllDir := filepath.Join(os.TempDir(), "pty_winpty")
+
 	if err := os.MkdirAll(dllDir, os.ModePerm); err != nil {
 		return "", err
 	}
@@ -130,11 +137,7 @@ func releases(f *bytes.Reader, targetPath string) error {
 	if err != nil {
 		return err
 	}
-	flock := fslock.New(targetPath + `lock`)
-	if err := flock.LockWithTimeout(time.Second * 3); err != nil {
-		return err
-	}
-	defer flock.Unlock()
+
 	for _, f := range zipReader.File {
 		fpath := filepath.Join(targetPath, f.Name)
 		info, statErr := os.Stat(fpath)
@@ -163,7 +166,7 @@ func releases(f *bytes.Reader, targetPath string) error {
 			return err
 		}
 	}
-	return err
+	return nil
 }
 
 func (c *console) StdIn() io.Writer {
