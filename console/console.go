@@ -63,10 +63,8 @@ func (c *console) buildCmd(args []string) (*exec.Cmd, error) {
 	}
 	if file, err := exec.LookPath(args[0]); err != nil {
 		return nil, err
-	} else if path, err := filepath.Abs(file); err != nil {
+	} else if args[0], err = filepath.Abs(file); err != nil {
 		return nil, err
-	} else {
-		args[0] = path
 	}
 	cmd := exec.Command(args[0], args[1:]...)
 	return cmd, nil
@@ -104,6 +102,7 @@ func (c *console) Kill() error {
 	if err != nil {
 		return err
 	}
+	// try to kill all child processes
 	pgid, err := syscall.Getpgid(proc.Pid)
 	if err != nil {
 		return proc.Kill()

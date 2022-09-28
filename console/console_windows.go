@@ -40,7 +40,7 @@ type console struct {
 
 // start pty subroutine
 func (c *console) Start(dir string, command []string) error {
-	dllDir, err := c.UnloadEmbeddedDeps()
+	dllDir, err := c.findDll()
 	if err != nil {
 		return err
 	}
@@ -65,8 +65,10 @@ func (c *console) Start(dir string, command []string) error {
 	if c.colorAble {
 		option.AgentFlags = winpty.WINPTY_FLAG_COLOR_ESCAPES
 	} else {
+		// Do not output escape characters
 		option.AgentFlags = winpty.WINPTY_FLAG_PLAIN_OUTPUT
 	}
+	// creat stderr
 	option.AgentFlags = option.AgentFlags | winpty.WINPTY_FLAG_CONERR
 	if cmd, err := winpty.OpenWithOptions(option); err != nil {
 		return err
@@ -79,6 +81,7 @@ func (c *console) Start(dir string, command []string) error {
 	return nil
 }
 
+// splice command
 func (c *console) buildCmd(args []string) (string, error) {
 	if len(args) == 0 {
 		return "", ErrInvalidCmd
@@ -86,15 +89,13 @@ func (c *console) buildCmd(args []string) (string, error) {
 	var cmds = fmt.Sprintf("cmd /C chcp %s > nul & ", codePage(c.coder))
 	if file, err := exec.LookPath(args[0]); err != nil {
 		return "", err
-	} else if path, err := filepath.Abs(file); err != nil {
+	} else if args[0], err = filepath.Abs(file); err != nil {
 		return "", err
-	} else {
-		args[0] = path
 	}
 	for _, v := range args {
-		cmds += fmt.Sprintf("%s ", v)
+		cmds += v + ` `
 	}
-	return cmds, nil
+	return cmds[:len(cmds)-1], nil
 }
 
 var chcp = map[string]string{
@@ -111,13 +112,15 @@ var chcp = map[string]string{
 func codePage(types string) string {
 	if cp, ok := chcp[strings.ToUpper(types)]; ok {
 		return cp
+	} else {
+		return "65001"
 	}
-	return chcp["UTF-8"]
 }
 
-func (c *console) UnloadEmbeddedDeps() (string, error) {
+func (c *console) findDll() (string, error) {
+	// File locks prevent concurrent file corruption
 	flock := fslock.New(filepath.Join(os.TempDir(), "pty_winpty_lock"))
-	if err := flock.LockWithTimeout(time.Second * 3); err != nil {
+	if err := flock.LockWithTimeout(time.Second * 5); err != nil {
 		return "", err
 	}
 	defer flock.Unlock()
@@ -133,6 +136,7 @@ func (c *console) UnloadEmbeddedDeps() (string, error) {
 	return dllDir, nil
 }
 
+// release winpty prepend
 func releases(f *bytes.Reader, targetPath string) error {
 	zipReader, err := zip.NewReader(f, f.Size())
 	if err != nil {
@@ -142,6 +146,7 @@ func releases(f *bytes.Reader, targetPath string) error {
 	for _, f := range zipReader.File {
 		fpath := filepath.Join(targetPath, f.Name)
 		info, statErr := os.Stat(fpath)
+		// Check if the file is complete
 		if statErr == nil && f.FileInfo().Size() == info.Size() {
 			continue
 		}
@@ -178,6 +183,7 @@ func (c *console) SetSize(cols uint, rows uint) error {
 		return nil
 	}
 	err := c.file.SetSize(uint32(c.initialCols), uint32(c.initialRows))
+	// Error special handling
 	if err.Error() != "The operation completed successfully." {
 		return err
 	}
@@ -206,5 +212,6 @@ func (c *console) Kill() error {
 	if err != nil {
 		return err
 	}
+	// try to kill all child processes
 	return exec.Command("taskkill", "/F", "/T", "/PID", fmt.Sprint(c.Pid())).Run()
 }

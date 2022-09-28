@@ -57,11 +57,11 @@ func OpenDefault(dllPrefix, cmd, dir string, isColor bool) (*WinPTY, error) {
 }
 
 func setOptsDefaultValues(options *Options) {
-	if options.InitialCols <= 5 {
-		options.InitialCols = 50
+	if options.InitialCols < 5 {
+		options.InitialCols = 5
 	}
-	if options.InitialRows <= 5 {
-		options.InitialRows = 50
+	if options.InitialRows < 5 {
+		options.InitialRows = 5
 	}
 	if options.agentTimeoutMs == nil {
 		t := uint64(syscall.INFINITE)
@@ -149,7 +149,7 @@ func (pty *WinPTY) Pid() int {
 	return int(pid)
 }
 
-// 设置窗口大小
+// set windows size
 func (pty *WinPTY) SetSize(wsCol, wsRow uint32) error {
 	if wsCol == 0 || wsRow == 0 {
 		return fmt.Errorf("wsCol or wsRow = 0")
@@ -158,7 +158,7 @@ func (pty *WinPTY) SetSize(wsCol, wsRow uint32) error {
 	return err
 }
 
-// 关闭进程
+// close proc
 func (pty *WinPTY) Close() error {
 	if pty.closed {
 		return nil
@@ -178,19 +178,23 @@ func (pty *WinPTY) Close() error {
 
 }
 
+// get pty sub proc
 func (pty *WinPTY) GetProcHandle() uintptr {
 	return pty.procHandle
 }
 
+// get pty proc
 func (pty *WinPTY) GetAgentProcHandle() uintptr {
 	agentProcH, _, _ := winpty_agent_process.Call(pty.pty)
 	return agentProcH
 }
 
+// set pty timeout
 func SetAgentTimeout(winptyConfigT uintptr, timeoutMs uint64) {
 	winpty_config_set_agent_timeout.Call(winptyConfigT, uintptr(timeoutMs))
 }
 
+// set pty mouse mode
 func SetMouseMode(winptyConfigT uintptr, mode uint) {
 	winpty_config_set_mouse_mode.Call(winptyConfigT, uintptr(mode))
 }

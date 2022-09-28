@@ -78,6 +78,7 @@ func (c *console) StdOut() io.Reader {
 	return c.stdOut
 }
 
+// nil in unix
 func (c *console) StdErr() io.Reader {
 	return c.stdErr
 }
