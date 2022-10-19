@@ -25,7 +25,7 @@ func DecoderReader(types string, r io.Reader) *transform.Reader {
 		decoder = transform.NewReader(r, simplifiedchinese.GBK.NewDecoder())
 	case "BIG5":
 		decoder = transform.NewReader(r, traditionalchinese.Big5.NewDecoder())
-	case "ShiftJIS":
+	case "SHIFTJIS":
 		decoder = transform.NewReader(r, japanese.ShiftJIS.NewDecoder())
 	case "KS_C_5601":
 		decoder = transform.NewReader(r, korean.EUCKR.NewDecoder())

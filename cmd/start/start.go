@@ -9,13 +9,14 @@ import (
 	"runtime"
 
 	pty "github.com/MCSManager/pty/console"
+	"github.com/MCSManager/pty/utils"
 	"github.com/mattn/go-colorable"
 )
 
 var (
-	dir, cmd, coder, ptySize string
-	cmds                     []string
-	colorAble                bool
+	dir, cmd, coder, ptySize, mode string
+	cmds                           []string
+	colorAble                      bool
 )
 
 type PtyInfo struct {
@@ -33,18 +34,33 @@ func init() {
 	flag.StringVar(&coder, "coder", "UTF-8", "Coder")
 	flag.StringVar(&dir, "dir", ".", "command work path")
 	flag.StringVar(&ptySize, "size", "80,50", "Initialize pty size, stdin will be forwarded directly")
+	flag.StringVar(&mode, "m", "pty", "set mode")
 }
 
 func Main() {
 	flag.Parse()
-	json.Unmarshal([]byte(cmd), &cmds)
+	args := flag.Args()
+	switch mode {
+	case "zip":
+		if err := utils.Zip(args[0], args[1]); err != nil {
+			fmt.Println(err.Error())
+		}
+	case "unzip":
+		if err := utils.Unzip(args[0], args[1], coder); err != nil {
+			fmt.Println(err.Error())
+		}
+	default:
+		runPTY()
+	}
+}
 
+func runPTY() {
+	json.Unmarshal([]byte(cmd), &cmds)
 	con := pty.New(coder, colorAble)
 	if err := con.ResizeWithString(ptySize); err != nil {
 		fmt.Printf("[MCSMANAGER-PTY] PTY ReSize Error: %v\n", err)
 		return
 	}
-
 	err := con.Start(dir, cmds)
 	info, _ := json.Marshal(&PtyInfo{
 		Pid: con.Pid(),
@@ -55,12 +71,11 @@ func Main() {
 		return
 	}
 	defer con.Close()
-
-	HandleStdIO(con)
+	handleStdIO(con)
 	con.Wait()
 }
 
-func HandleStdIO(c pty.Console) {
+func handleStdIO(c pty.Console) {
 	go io.Copy(c.StdIn(), os.Stdin)
 	if runtime.GOOS == "windows" && c.StdErr() != nil {
 		go io.Copy(os.Stderr, c.StdErr())
