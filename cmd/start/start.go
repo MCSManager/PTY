@@ -44,10 +44,12 @@ func Main() {
 	case "zip":
 		if err := utils.Zip(args[0], args[1]); err != nil {
 			fmt.Println(err.Error())
+			os.Exit(1)
 		}
 	case "unzip":
 		if err := utils.Unzip(args[0], args[1], coder); err != nil {
 			fmt.Println(err.Error())
+			os.Exit(1)
 		}
 	default:
 		runPTY()
