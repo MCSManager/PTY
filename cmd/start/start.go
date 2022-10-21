@@ -42,7 +42,7 @@ func Main() {
 	args := flag.Args()
 	switch mode {
 	case "zip":
-		if err := utils.Zip(args[0], args[1]); err != nil {
+		if err := utils.Zip(args[:len(args)-1], args[len(args)-1]); err != nil {
 			fmt.Println(err.Error())
 		}
 	case "unzip":
