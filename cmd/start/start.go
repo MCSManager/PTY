@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"runtime"
+	"strconv"
 
 	pty "github.com/MCSManager/pty/console"
 	"github.com/MCSManager/pty/utils"
@@ -14,9 +15,9 @@ import (
 )
 
 var (
-	dir, cmd, coder, ptySize, mode string
-	cmds                           []string
-	colorAble                      bool
+	dir, cmd, coder, ptySize, pid, mode string
+	cmds                                []string
+	colorAble                           bool
 )
 
 type PtyInfo struct {
@@ -32,6 +33,7 @@ func init() {
 
 	flag.BoolVar(&colorAble, "color", false, "colorable (default false)")
 	flag.StringVar(&coder, "coder", "UTF-8", "Coder")
+	flag.StringVar(&pid, "pid", "0", "detect pid info")
 	flag.StringVar(&dir, "dir", ".", "command work path")
 	flag.StringVar(&ptySize, "size", "80,50", "Initialize pty size, stdin will be forwarded directly")
 	flag.StringVar(&mode, "m", "pty", "set mode")
@@ -42,16 +44,34 @@ func Main() {
 	args := flag.Args()
 	switch mode {
 	case "zip":
+		runtime.GOMAXPROCS(1)
 		if err := utils.Zip(args[:len(args)-1], args[len(args)-1]); err != nil {
 			fmt.Println(err.Error())
 			os.Exit(1)
 		}
 	case "unzip":
+		runtime.GOMAXPROCS(1)
 		if err := utils.Unzip(args[0], args[1], coder); err != nil {
 			fmt.Println(err.Error())
 			os.Exit(1)
 		}
+	case "info":
+		runtime.GOMAXPROCS(2)
+		info := utils.NewInfo()
+		upid, err := strconv.ParseInt(pid, 10, 32)
+		if err != nil {
+			fmt.Println(err.Error())
+			os.Exit(1)
+		}
+		utils.Detect(int32(upid), info)
+		pinfo, err := json.Marshal(info)
+		if err != nil {
+			fmt.Println(err.Error())
+			os.Exit(1)
+		}
+		fmt.Println(string(pinfo))
 	default:
+		runtime.GOMAXPROCS(6)
 		runPTY()
 	}
 }
