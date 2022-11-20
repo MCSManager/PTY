@@ -87,11 +87,6 @@ func (c *console) buildCmd(args []string) (string, error) {
 		return "", ErrInvalidCmd
 	}
 	var cmds = fmt.Sprintf("cmd /C chcp %s > nul & ", codePage(c.coder))
-	if file, err := exec.LookPath(args[0]); err != nil {
-		return "", err
-	} else if args[0], err = filepath.Abs(file); err != nil {
-		return "", err
-	}
 	for _, v := range args {
 		cmds += v + ` `
 	}
