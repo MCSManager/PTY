@@ -10,7 +10,8 @@
 
 <div align=center>
 
-![term](https://user-images.githubusercontent.com/18360009/180396380-b2ec74c4-dcab-4405-a72a-2c66c4b3eac4.png)
+![terminal image](https://user-images.githubusercontent.com/18360009/202891148-e7e5bf63-c4a9-454f-8f62-c91dc594cefa.png)
+
 
 </div>
 
