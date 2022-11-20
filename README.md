@@ -75,14 +75,13 @@ htop
 
 ## MCSManager
 
-MCSManager is Distributed, out-of-the-box, supports docker,
-supports Minecraft and other game server management panel for the Chinese market.
+MCSManager is a Distributed, Docker-supported, Multilingual, and Lightweight control panel for Minecraft server and all console programs.
 
 This application will provide PTY functionality for MCSManager,
 it is specifically designed for MCSManager,
 you can also try porting to your own application.
 
-More info: [https://github.com/mcsmanager](https://github.com/mcsmanager)
+More info: [https://github.com/mcsmanager/mcsmanager](https://github.com/mcsmanager/mcsmanager)
 
 <br />
 
