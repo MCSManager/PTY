@@ -35,9 +35,6 @@ func Zip(filePath []string, zipPath string) error {
 			if err != nil {
 				return err
 			}
-			if path == fPath {
-				return nil
-			}
 			var zipfile io.Writer
 			if !strings.HasSuffix(filepath.Dir(fPath), `\`) {
 				fPath = filepath.Dir(fPath) + `\`
