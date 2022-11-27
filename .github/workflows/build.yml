@@ -23,6 +23,7 @@ jobs:
                   CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_arm64
                   CGO_ENABLED=0 GOOS=linux GOARCH=arm go build -ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_arm
                   CGO_ENABLED=0 GOOS=linux GOARCH=386 go build -ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_386
+                  CGO_ENABLED=0 GOOS=linux GOARCH=loong64 go build -ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_loong64
                   CGO_ENABLED=0 GOOS=linux GOARCH=mips go build -ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_mips
                   CGO_ENABLED=0 GOOS=linux GOARCH=mips64 go build -ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_mips64
                   CGO_ENABLED=0 GOOS=linux GOARCH=mips64le go build -ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_mips64le
@@ -39,7 +40,6 @@ jobs:
                   CGO_ENABLED=0 GOOS=openbsd GOARCH=amd64 go build -ldflags '-s -w --extldflags "-static -fpic"' -o pty_openbsd_amd64
                   CGO_ENABLED=0 GOOS=openbsd GOARCH=arm go build -ldflags '-s -w --extldflags "-static -fpic"' -o pty_openbsd_arm
                   CGO_ENABLED=0 GOOS=openbsd GOARCH=arm64 go build -ldflags '-s -w --extldflags "-static -fpic"' -o pty_openbsd_arm64
-                  CGO_ENABLED=0 GOOS=openbsd GOARCH=mips64 go build -ldflags '-s -w --extldflags "-static -fpic"' -o pty_openbsd_mips64
                   CGO_ENABLED=0 GOOS=freebsd GOARCH=386 go build -ldflags '-s -w --extldflags "-static -fpic"' -o pty_freebsd_386
                   CGO_ENABLED=0 GOOS=freebsd GOARCH=amd64 go build -ldflags '-s -w --extldflags "-static -fpic"' -o pty_freebsd_amd64
                   CGO_ENABLED=0 GOOS=freebsd GOARCH=arm go build -ldflags '-s -w --extldflags "-static -fpic"' -o pty_freebsd_arm
@@ -57,6 +57,7 @@ jobs:
                       pty_linux_arm64
                       pty_linux_arm
                       pty_linux_386
+                      pty_linux_loong64
                       pty_linux_mips
                       pty_linux_mips64
                       pty_linux_mips64le
@@ -78,3 +79,4 @@ jobs:
                       pty_freebsd_amd64
                       pty_freebsd_arm
                       pty_freebsd_arm64
+                      pty_solaris_amd64
