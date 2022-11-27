@@ -44,7 +44,6 @@ jobs:
                   CGO_ENABLED=0 GOOS=freebsd GOARCH=amd64 go build -ldflags '-s -w --extldflags "-static -fpic"' -o pty_freebsd_amd64
                   CGO_ENABLED=0 GOOS=freebsd GOARCH=arm go build -ldflags '-s -w --extldflags "-static -fpic"' -o pty_freebsd_arm
                   CGO_ENABLED=0 GOOS=freebsd GOARCH=arm64 go build -ldflags '-s -w --extldflags "-static -fpic"' -o pty_freebsd_arm64
-                  CGO_ENABLED=0 GOOS=solaris GOARCH=amd64 go build -ldflags '-s -w --extldflags "-static -fpic"' -o pty_solaris_amd64
 
             - uses: "marvinpinto/action-automatic-releases@latest"
               with:
@@ -79,4 +78,3 @@ jobs:
                       pty_freebsd_amd64
                       pty_freebsd_arm
                       pty_freebsd_arm64
-                      pty_solaris_amd64
