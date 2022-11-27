@@ -62,29 +62,27 @@ func decode(files []*zip.File, targetPath string, types string) error {
 }
 
 func handleFile(f *zip.File, targetPath, decodeName string) error {
-	var err error
 	fpath := filepath.Join(targetPath, decodeName)
 	if f.FileInfo().IsDir() {
-		os.MkdirAll(fpath, os.ModePerm)
+		return os.MkdirAll(fpath, os.ModePerm)
 	} else {
-		if err = os.MkdirAll(filepath.Dir(fpath), os.ModePerm); err != nil {
+		if err := os.MkdirAll(filepath.Dir(fpath), os.ModePerm); err != nil {
 			return err
 		}
 		inFile, err := f.Open()
 		if err != nil {
 			return err
 		}
+		defer inFile.Close()
 		outFile, err := os.OpenFile(fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
 		if err != nil {
 			return err
 		}
+		defer outFile.Close()
 		buf := bufio.NewWriter(outFile)
 		if _, err = io.Copy(buf, inFile); err != nil {
 			return err
 		}
-		buf.Flush()
-		inFile.Close()
-		outFile.Close()
+		return buf.Flush()
 	}
-	return err
 }

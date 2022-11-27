@@ -11,8 +11,8 @@ import (
 
 // 示例 zip.Zip("MCSManager 9.4.5_win64_x86", "./test.zip") 可使用相对路径和绝对路径
 func Zip(filePath []string, zipPath string) error {
-	var err error
-	if zipPath, err = filepath.Abs(zipPath); err != nil {
+	zipPath, err := filepath.Abs(zipPath)
+	if err != nil {
 		return err
 	}
 	if strings.ToLower(filepath.Ext(zipPath)) != ".zip" {
@@ -24,6 +24,7 @@ func Zip(filePath []string, zipPath string) error {
 	}
 	defer zipfile.Close()
 	buf := bufio.NewWriter(zipfile)
+	defer buf.Flush()
 	zw := zip.NewWriter(buf)
 	defer zw.Close()
 	for _, fPath := range filePath {
@@ -35,34 +36,25 @@ func Zip(filePath []string, zipPath string) error {
 			if err != nil {
 				return err
 			}
-			var zipfile io.Writer
-			if !strings.HasSuffix(filepath.Dir(fPath), `\`) {
-				fPath = filepath.Dir(fPath) + `\`
-			}
 			if info.IsDir() {
-				if !strings.HasSuffix(path, `\`) && !strings.HasSuffix(path, `/`) {
-					path = path + `/`
-				}
-				_, err = zw.Create(strings.TrimPrefix(path, fPath))
+				_, err = zw.Create(strings.TrimPrefix(strings.TrimPrefix(path, filepath.Dir(fPath)), string(os.PathSeparator)) + `/`)
 				return err
-			} else {
-				zipfile, err = zw.Create(strings.TrimPrefix(path, fPath))
-				if err != nil {
-					return err
-				}
+			}
+			zipfile, err := zw.Create(strings.TrimPrefix(strings.TrimPrefix(path, filepath.Dir(fPath)), string(os.PathSeparator)))
+			if err != nil {
+				return err
 			}
 			f1, err := os.Open(path)
 			if err != nil {
 				return err
 			}
-			io.Copy(zipfile, f1)
-			f1.Close()
-			return nil
+			defer f1.Close()
+			_, err = io.Copy(zipfile, f1)
+			return err
 		})
 		if err != nil {
 			return err
 		}
 	}
-	buf.Flush()
 	return err
 }
