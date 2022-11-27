@@ -35,12 +35,21 @@ func Zip(filePath []string, zipPath string) error {
 			if err != nil {
 				return err
 			}
+			if path == fPath {
+				return nil
+			}
 			var zipfile io.Writer
+			if !strings.HasSuffix(filepath.Dir(fPath), `\`) {
+				fPath = filepath.Dir(fPath) + `\`
+			}
 			if info.IsDir() {
-				_, err = zw.Create(strings.TrimPrefix(path, filepath.Dir(fPath)) + `/`)
+				if !strings.HasSuffix(path, `\`) && !strings.HasSuffix(path, `/`) {
+					path = path + `/`
+				}
+				_, err = zw.Create(strings.TrimPrefix(path, fPath))
 				return err
 			} else {
-				zipfile, err = zw.Create(strings.TrimPrefix(path, filepath.Dir(fPath)))
+				zipfile, err = zw.Create(strings.TrimPrefix(path, fPath))
 				if err != nil {
 					return err
 				}
