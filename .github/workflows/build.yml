@@ -72,7 +72,6 @@ jobs:
                       pty_openbsd_amd64
                       pty_openbsd_arm
                       pty_openbsd_arm64
-                      pty_openbsd_mips64
                       pty_freebsd_386
                       pty_freebsd_amd64
                       pty_freebsd_arm
