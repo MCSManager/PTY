@@ -61,9 +61,8 @@ func (c *console) buildCmd(args []string) (*exec.Cmd, error) {
 	if len(args) == 0 {
 		return nil, ErrInvalidCmd
 	}
-	if file, err := exec.LookPath(args[0]); err != nil {
-		return nil, err
-	} else if args[0], err = filepath.Abs(file); err != nil {
+	var err error
+	if args[0], err = exec.LookPath(args[0]); err != nil {
 		return nil, err
 	}
 	cmd := exec.Command(args[0], args[1:]...)
