@@ -18,6 +18,9 @@ jobs:
 
             - name: Build
               run: |
+                  CGO_ENABLED=0 GOOS=windows GOARCH=arm64 go build -ldflags '-s -w --extldflags "-static -fpic"' -o pty_windows_arm64.exe
+                  CGO_ENABLED=0 GOOS=windows GOARCH=386 go build -ldflags '-s -w --extldflags "-static -fpic"' -o pty_windows_386.exe
+                  CGO_ENABLED=0 GOOS=windows GOARCH=arm go build -ldflags '-s -w --extldflags "-static -fpic"' -o pty_windows_arm.exe
                   CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags '-s -w --extldflags "-static -fpic"' -o pty_windows_amd64.exe
                   CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_amd64
                   CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_arm64
@@ -43,6 +46,8 @@ jobs:
                   CGO_ENABLED=0 GOOS=freebsd GOARCH=amd64 go build -ldflags '-s -w --extldflags "-static -fpic"' -o pty_freebsd_amd64
                   CGO_ENABLED=0 GOOS=freebsd GOARCH=arm go build -ldflags '-s -w --extldflags "-static -fpic"' -o pty_freebsd_arm
                   CGO_ENABLED=0 GOOS=freebsd GOARCH=arm64 go build -ldflags '-s -w --extldflags "-static -fpic"' -o pty_freebsd_arm64
+                  CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -ldflags '-s -w --extldflags "-static -fpic"' -o pty_darwin_amd64
+                  CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags '-s -w --extldflags "-static -fpic"' -o pty_darwin_arm64
 
             - uses: "marvinpinto/action-automatic-releases@latest"
               with:
@@ -51,6 +56,9 @@ jobs:
                   title: Development Build
                   prerelease: true
                   files: |
+                      pty_windows_arm64.exe
+                      pty_windows_386.exe
+                      pty_windows_arm.exe
                       pty_windows_amd64.exe
                       pty_linux_amd64
                       pty_linux_arm64
@@ -76,3 +84,5 @@ jobs:
                       pty_freebsd_amd64
                       pty_freebsd_arm
                       pty_freebsd_arm64
+                      pty_darwin_amd64
+                      pty_darwin_arm64
