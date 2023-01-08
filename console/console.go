@@ -34,13 +34,13 @@ type console struct {
 
 // start pty subroutine
 func (c *console) Start(dir string, command []string) error {
-	cmd, err := c.buildCmd(command)
-	if err != nil {
-		return err
-	}
-	if dir, err = filepath.Abs(dir); err != nil {
+	if dir, err := filepath.Abs(dir); err != nil {
 		return err
 	} else if err := os.Chdir(dir); err != nil {
+		return err
+	}
+	cmd, err := c.buildCmd(command)
+	if err != nil {
 		return err
 	}
 	c.cmd = cmd
