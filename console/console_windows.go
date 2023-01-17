@@ -10,11 +10,11 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/MCSManager/pty/console/go-winpty"
 	"github.com/MCSManager/pty/console/iface"
+	"github.com/MCSManager/pty/utils"
 	"github.com/juju/fslock"
 )
 
@@ -24,9 +24,8 @@ var winpty_zip []byte
 var _ iface.Console = (*console)(nil)
 
 type console struct {
-	file      *winpty.WinPTY
-	coder     string
-	colorAble bool
+	file  *winpty.WinPTY
+	coder utils.CoderType
 
 	stdIn  io.Writer
 	stdOut io.Reader
@@ -62,14 +61,8 @@ func (c *console) Start(dir string, command []string) error {
 		InitialRows: uint32(c.initialRows),
 	}
 
-	if c.colorAble {
-		option.AgentFlags = winpty.WINPTY_FLAG_COLOR_ESCAPES
-	} else {
-		// Do not output escape characters
-		option.AgentFlags = winpty.WINPTY_FLAG_PLAIN_OUTPUT
-	}
 	// creat stderr
-	option.AgentFlags = option.AgentFlags | winpty.WINPTY_FLAG_CONERR
+	option.AgentFlags = winpty.WINPTY_FLAG_CONERR | winpty.WINPTY_FLAG_COLOR_ESCAPES
 	if cmd, err := winpty.OpenWithOptions(option); err != nil {
 		return err
 	} else {
@@ -86,30 +79,11 @@ func (c *console) buildCmd(args []string) (string, error) {
 	if len(args) == 0 {
 		return "", ErrInvalidCmd
 	}
-	var cmds = fmt.Sprintf("cmd /C chcp %s > nul & ", codePage(c.coder))
+	var cmds = fmt.Sprintf("cmd /C chcp %s > nul & ", utils.CodePage(c.coder))
 	for _, v := range args {
 		cmds += v + ` `
 	}
 	return cmds[:len(cmds)-1], nil
-}
-
-var chcp = map[string]string{
-	"UTF-8":     "65001",
-	"UTF-16":    "1200",
-	"GBK":       "936",
-	"GB2312":    "936",
-	"GB18030":   "54936",
-	"BIG5":      "950",
-	"KS_C_5601": "949",
-	"SHIFTJIS":  "932",
-}
-
-func codePage(types string) string {
-	if cp, ok := chcp[strings.ToUpper(types)]; ok {
-		return cp
-	} else {
-		return "65001"
-	}
 }
 
 func (c *console) findDll() (string, error) {

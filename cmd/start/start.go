@@ -11,7 +11,6 @@ import (
 
 	pty "github.com/MCSManager/pty/console"
 	"github.com/MCSManager/pty/utils"
-	"github.com/mattn/go-colorable"
 )
 
 var (
@@ -32,7 +31,7 @@ func init() {
 	}
 
 	flag.BoolVar(&colorAble, "color", false, "colorable (default false)")
-	flag.StringVar(&coder, "coder", "UTF-8", "Coder")
+	flag.StringVar(&coder, "coder", "auto", "Coder")
 	flag.StringVar(&pid, "pid", "0", "detect pid info")
 	flag.StringVar(&dir, "dir", ".", "command work path")
 	flag.StringVar(&ptySize, "size", "80,50", "Initialize pty size, stdin will be forwarded directly")
@@ -44,14 +43,12 @@ func Main() {
 	args := flag.Args()
 	switch mode {
 	case "zip":
-		runtime.GOMAXPROCS(1)
 		if err := utils.Zip(args[:len(args)-1], args[len(args)-1]); err != nil {
 			fmt.Println(err.Error())
 			os.Exit(1)
 		}
 	case "unzip":
-		runtime.GOMAXPROCS(1)
-		if err := utils.Unzip(args[0], args[1], coder); err != nil {
+		if err := utils.Unzip(args[0], args[1], utils.CoderToType(coder)); err != nil {
 			fmt.Println(err.Error())
 			os.Exit(1)
 		}
@@ -78,7 +75,7 @@ func Main() {
 
 func runPTY() {
 	json.Unmarshal([]byte(cmd), &cmds)
-	con := pty.New(coder, colorAble)
+	con := pty.New(utils.CoderToType(coder))
 	if err := con.ResizeWithString(ptySize); err != nil {
 		fmt.Printf("[MCSMANAGER-PTY] PTY ReSize Error: %v\n", err)
 		return
@@ -99,8 +96,15 @@ func runPTY() {
 
 func handleStdIO(c pty.Console) {
 	go io.Copy(c.StdIn(), os.Stdin)
+	colorAble = false
 	if runtime.GOOS == "windows" && c.StdErr() != nil {
-		go io.Copy(os.Stderr, c.StdErr())
+		var stdErr io.Writer
+		if colorAble {
+			stdErr = pty.Colorable(os.Stderr)
+		} else {
+			stdErr = pty.NonColorable(os.Stderr)
+		}
+		go io.Copy(stdErr, c.StdErr())
 	}
 	handleStdOut(c)
 }
@@ -108,9 +112,9 @@ func handleStdIO(c pty.Console) {
 func handleStdOut(c pty.Console) {
 	var stdout io.Writer
 	if colorAble {
-		stdout = colorable.NewColorable(os.Stdout)
+		stdout = pty.Colorable(os.Stdout)
 	} else {
-		stdout = colorable.NewNonColorable(os.Stdout)
+		stdout = pty.NonColorable(os.Stdout)
 	}
 	io.Copy(stdout, c.StdOut())
 }

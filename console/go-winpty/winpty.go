@@ -41,11 +41,8 @@ type WinPTY struct {
 }
 
 // the same as open, but uses defaults for Env
-func OpenDefault(dllPrefix, cmd, dir string, isColor bool) (*WinPTY, error) {
-	var flag uint64 = WINPTY_FLAG_PLAIN_OUTPUT
-	if isColor {
-		flag = WINPTY_FLAG_COLOR_ESCAPES
-	}
+func OpenDefault(dllPrefix, cmd, dir string) (*WinPTY, error) {
+	var flag uint64 = WINPTY_FLAG_COLOR_ESCAPES
 	// flag = flag | WINPTY_FLAG_ALLOW_CURPROC_DESKTOP_CREATION
 	return OpenWithOptions(Options{
 		DllDir:     dllPrefix,

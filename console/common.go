@@ -10,6 +10,8 @@ import (
 	"strings"
 
 	"github.com/MCSManager/pty/console/iface"
+	"github.com/MCSManager/pty/utils"
+	"github.com/mattn/go-colorable"
 )
 
 var (
@@ -20,16 +22,24 @@ var (
 type Console iface.Console
 
 // Create a new pty
-func New(coder string, colorAble bool) Console {
-	return newNative(coder, colorAble, 50, 50)
+func New(coder utils.CoderType) Console {
+	return newNative(coder, 50, 50)
+}
+
+func Colorable(file *os.File) io.Writer {
+	return colorable.NewColorable(file)
+}
+
+func NonColorable(w io.Writer) io.Writer {
+	return colorable.NewNonColorable(w)
 }
 
 // Create a new pty and initialize the size
-func NewWithSize(coder string, colorAble bool, Cols, Rows uint) Console {
-	return newNative(coder, colorAble, Cols, Rows)
+func NewWithSize(coder utils.CoderType, Cols, Rows uint) Console {
+	return newNative(coder, Cols, Rows)
 }
 
-func newNative(coder string, colorAble bool, Cols, Rows uint) Console {
+func newNative(coder utils.CoderType, Cols, Rows uint) Console {
 	if Cols == 0 {
 		Cols = 50
 	}
@@ -40,7 +50,6 @@ func newNative(coder string, colorAble bool, Cols, Rows uint) Console {
 		initialCols: Cols,
 		initialRows: Rows,
 		coder:       coder,
-		colorAble:   colorAble,
 
 		file: nil,
 	}

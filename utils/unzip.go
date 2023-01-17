@@ -1,11 +1,14 @@
 package utils
 
 import (
-	"archive/zip"
 	"bufio"
+	"context"
+	"errors"
 	"io"
 	"os"
 	"path/filepath"
+
+	archiver "github.com/mholt/archiver/v4"
 
 	"golang.org/x/text/transform"
 )
@@ -13,7 +16,7 @@ import (
 const bufSize = 1024 * 1024 * 4
 
 // 示例: zip.Unzip("./mcsm.zip", "./", "auto") 可使用相对路径和绝对路径
-func Unzip(zipPath, targetPath, coder string) error {
+func Unzip(zipPath, targetPath string, coderTypes CoderType) error {
 	var err error
 	if targetPath, err = filepath.Abs(targetPath); err != nil {
 		return err
@@ -25,72 +28,100 @@ func Unzip(zipPath, targetPath, coder string) error {
 	if zipPath, err = filepath.Abs(zipPath); err != nil {
 		return err
 	}
-	zipReader, err := zip.OpenReader(zipPath)
+	zipFile, err := os.Open(zipPath)
 	if err != nil {
 		return err
 	}
-	defer zipReader.Close()
-	if coder == "auto" {
-		if zipEncode(zipReader.File, isUtf8) || !zipEncode(zipReader.File, isGBK) {
-			err = decode(zipReader.File, targetPath, "utf8")
+	defer zipFile.Close()
+	format, r, err := archiver.Identify("", zipFile)
+	if err != nil {
+		return err
+	}
+	if coderTypes == T_Auto {
+		m := zipEncode(format, r, isUtf8, isGBK)
+		s, ok := r.(io.Seeker)
+		if !ok {
+			return errors.New("io seek err")
+		}
+		_, err = s.Seek(0, io.SeekStart)
+		if err != nil {
+			return err
+		}
+		if m[T_UTF8] || !m[T_GBK] {
+			err = decode(format, bufio.NewReaderSize(r, 4*bufSize), targetPath, T_UTF8)
 		} else {
-			err = decode(zipReader.File, targetPath, "gbk")
+			err = decode(format, bufio.NewReaderSize(r, 4*bufSize), targetPath, T_GBK)
 		}
 	} else {
-		err = decode(zipReader.File, targetPath, coder)
+		err = decode(format, bufio.NewReaderSize(r, 4*bufSize), targetPath, coderTypes)
 	}
 	return err
 }
 
-func zipEncode(f []*zip.File, fun func(data []byte) bool) bool {
-	for _, v := range f {
-		if fun([]byte(v.Name)) {
-			continue
-		}
-		return false
+func zipEncode(format archiver.Format, r io.Reader, fun ...func(data []byte) (bool, CoderType)) (res map[CoderType]bool) {
+	res = make(map[CoderType]bool)
+	if ex, ok := format.(archiver.Extractor); ok {
+		ex.Extract(context.Background(), r, nil, func(ctx context.Context, f archiver.File) error {
+			for _, fn := range fun {
+				select {
+				case <-ctx.Done():
+					return ctx.Err()
+				default:
+					ok, name := fn([]byte(f.Name()))
+					if b, o := res[name]; o {
+						if !b {
+							continue
+						} else {
+							res[name] = ok
+						}
+					} else {
+						res[name] = ok
+					}
+				}
+			}
+			return nil
+		})
 	}
-	return true
+	return
 }
 
-func decode(files []*zip.File, targetPath string, types string) error {
-	decoder := newDeCoder(types)
-	for _, f := range files {
-		if result, _, err := transform.String(decoder, f.Name); err != nil {
-			return err
-		} else if err = handleFile(f, targetPath, result); err != nil {
-			return err
-		}
+func decode(format archiver.Format, r io.Reader, targetPath string, coderTypes CoderType) error {
+	decoder := newDeCoder(coderTypes)
+	if ex, ok := format.(archiver.Extractor); ok {
+		return ex.Extract(context.Background(), r, nil, func(ctx context.Context, f archiver.File) error {
+			if result, _, err := transform.String(decoder, f.NameInArchive); err != nil {
+				return err
+			} else {
+				fpath := filepath.Join(targetPath, result)
+				if f.IsDir() {
+					return os.MkdirAll(fpath, f.Mode())
+				} else {
+					if err := os.MkdirAll(filepath.Dir(fpath), os.ModePerm); err != nil {
+						return err
+					}
+					inFile, err := f.Open()
+					if err != nil {
+						return err
+					}
+					defer inFile.Close()
+					file, err := os.OpenFile(fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
+					if err != nil {
+						return err
+					}
+					defer file.Close()
+					var outFile io.Writer
+					if f.Size() > bufSize {
+						buf := bufio.NewWriterSize(file, 4*bufSize)
+						outFile = buf
+						defer buf.Flush()
+					} else {
+						outFile = file
+					}
+					_, err = io.CopyBuffer(outFile, inFile, make([]byte, bufSize))
+					return err
+				}
+			}
+		})
 	}
-	return nil
-}
-
-func handleFile(f *zip.File, targetPath, decodeName string) error {
-	fpath := filepath.Join(targetPath, decodeName)
-	if f.FileInfo().IsDir() {
-		return os.MkdirAll(fpath, os.ModePerm)
-	} else {
-		if err := os.MkdirAll(filepath.Dir(fpath), os.ModePerm); err != nil {
-			return err
-		}
-		inFile, err := f.Open()
-		if err != nil {
-			return err
-		}
-		defer inFile.Close()
-		file, err := os.OpenFile(fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
-		if err != nil {
-			return err
-		}
-		defer file.Close()
-		var outFile io.Writer
-		if f.UncompressedSize64 > bufSize {
-			buf := bufio.NewWriterSize(file, 4*bufSize)
-			outFile = buf
-			defer buf.Flush()
-		} else {
-			outFile = file
-		}
-		_, err = io.CopyBuffer(outFile, inFile, make([]byte, bufSize))
-		return err
-	}
+	return errors.New("format.(archiver.Extractor) err")
 }

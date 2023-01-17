@@ -11,16 +11,16 @@ import (
 	"syscall"
 
 	"github.com/MCSManager/pty/console/iface"
+	"github.com/MCSManager/pty/utils"
 	"github.com/creack/pty"
 )
 
 var _ iface.Console = (*console)(nil)
 
 type console struct {
-	file      *os.File
-	cmd       *exec.Cmd
-	coder     string
-	colorAble bool
+	file  *os.File
+	cmd   *exec.Cmd
+	coder utils.CoderType
 
 	stdIn  io.Writer
 	stdOut io.Reader
@@ -50,8 +50,8 @@ func (c *console) Start(dir string, command []string) error {
 	if err != nil {
 		return err
 	}
-	c.stdIn = DecoderWriter(c.coder, f)
-	c.stdOut = DecoderReader(c.coder, f)
+	c.stdIn = utils.DecoderWriter(c.coder, f)
+	c.stdOut = utils.DecoderReader(c.coder, f)
 	c.stdErr = nil
 	c.file = f
 	return nil
