@@ -21,14 +21,14 @@ func Zip(filePath []string, zipPath string) error {
 	if err != nil {
 		return err
 	}
-	var bashDir = filepath.Dir(filePath[0])
+	var baseDir = filepath.Dir(filePath[0])
 	if len(filePath) == 1 {
 		fi, err := os.Stat(filePath[0])
 		if err != nil {
 			return err
 		}
 		if fi.IsDir() {
-			bashDir = filePath[0]
+			baseDir = filePath[0]
 		}
 	}
 	for k, v := range filePath[1:] {
@@ -36,8 +36,8 @@ func Zip(filePath []string, zipPath string) error {
 		if err != nil {
 			return err
 		}
-		if filepath.Dir(filePath[k+1]) != bashDir {
-			return errors.New("bash dir err")
+		if filepath.Dir(filePath[k+1]) != baseDir {
+			return errors.New("base dir err")
 		}
 	}
 	zipPath, err = filepath.Abs(zipPath)
@@ -51,7 +51,7 @@ func Zip(filePath []string, zipPath string) error {
 	if err != nil {
 		return err
 	}
-	zipFileNamePrefix := strings.TrimPrefix(strings.TrimPrefix(zipPath, bashDir), string(os.PathSeparator))
+	zipFileNamePrefix := strings.TrimPrefix(strings.TrimPrefix(zipPath, baseDir), string(os.PathSeparator))
 	zipfile, err := os.Create(zipPath)
 	if err != nil {
 		return err
@@ -69,7 +69,7 @@ func Zip(filePath []string, zipPath string) error {
 			if err != nil {
 				return err
 			}
-			filePath := strings.TrimPrefix(strings.TrimPrefix(path, bashDir), string(os.PathSeparator))
+			filePath := strings.TrimPrefix(strings.TrimPrefix(path, baseDir), string(os.PathSeparator))
 			if info.IsDir() {
 				_, err = zw.Create(filePath + `/`)
 				return err
