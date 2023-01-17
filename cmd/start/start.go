@@ -78,6 +78,7 @@ func Main() {
 
 func runPTY() {
 	json.Unmarshal([]byte(cmd), &cmds)
+	colorAble = false
 	con := pty.New(coder, colorAble)
 	if err := con.ResizeWithString(ptySize); err != nil {
 		fmt.Printf("[MCSMANAGER-PTY] PTY ReSize Error: %v\n", err)
