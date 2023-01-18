@@ -71,7 +71,7 @@ func Zip(filePath []string, zipPath string) error {
 		}
 	case ".gz", ".tgz":
 		format = archiver.CompressedArchive{
-			Compression: archiver.Gz{CompressionLevel: flate.DefaultCompression, Multithreaded: true},
+			Compression: archiver.Gz{CompressionLevel: flate.BestCompression, Multithreaded: true},
 			Archival:    archiver.Tar{},
 		}
 	case ".zip":
