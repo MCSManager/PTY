@@ -2,7 +2,6 @@ package utils
 
 import (
 	"bufio"
-	"bytes"
 	"context"
 	"errors"
 	"io"
@@ -34,28 +33,14 @@ func Unzip(zipPath, targetPath string, coderTypes CoderType) error {
 		return err
 	}
 	defer zipFile.Close()
-	format, _, err := archiver.Identify(filepath.Base(zipPath), zipFile)
-	if err != nil {
-		return err
-	}
-	if coderTypes == T_Auto {
-		m := zipEncode(format, zipFile, isUtf8, isGBK)
-		_, err = zipFile.Seek(0, io.SeekStart)
-		if err != nil {
-			return err
-		}
-		if m[T_UTF8] || !m[T_GBK] {
-			err = decode(format, zipFile, targetPath, T_UTF8)
-		} else {
-			err = decode(format, zipFile, targetPath, T_GBK)
-		}
-	} else {
-		err = decode(format, zipFile, targetPath, coderTypes)
-	}
-	return err
+	return UnzipWithFile(zipFile, targetPath, coderTypes)
 }
 
-func UnzipWithFile(fileData []byte, targetPath string, coderTypes CoderType) error {
+func UnzipWithFile(file io.Reader, targetPath string, coderTypes CoderType) error {
+	seek, ok := file.(io.Seeker)
+	if !ok {
+		return errors.New("seek file error")
+	}
 	var err error
 	if targetPath, err = filepath.Abs(targetPath); err != nil {
 		return err
@@ -64,24 +49,23 @@ func UnzipWithFile(fileData []byte, targetPath string, coderTypes CoderType) err
 	if err != nil {
 		return err
 	}
-	zipFile := bytes.NewReader(fileData)
-	format, _, err := archiver.Identify("", zipFile)
+	format, _, err := archiver.Identify("", file)
 	if err != nil {
 		return err
 	}
 	if coderTypes == T_Auto {
-		m := zipEncode(format, zipFile, isUtf8, isGBK)
-		_, err = zipFile.Seek(0, io.SeekStart)
+		m := zipEncode(format, file, isUtf8, isGBK)
+		_, err = seek.Seek(0, io.SeekStart)
 		if err != nil {
 			return err
 		}
 		if m[T_UTF8] || !m[T_GBK] {
-			err = decode(format, zipFile, targetPath, T_UTF8)
+			err = decode(format, file, targetPath, T_UTF8)
 		} else {
-			err = decode(format, zipFile, targetPath, T_GBK)
+			err = decode(format, file, targetPath, T_GBK)
 		}
 	} else {
-		err = decode(format, zipFile, targetPath, coderTypes)
+		err = decode(format, file, targetPath, coderTypes)
 	}
 	return err
 }

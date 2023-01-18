@@ -1,6 +1,7 @@
 package console
 
 import (
+	"bytes"
 	_ "embed"
 	"fmt"
 	"io"
@@ -96,7 +97,7 @@ func (c *console) findDll() (string, error) {
 	if err := os.MkdirAll(dllDir, os.ModePerm); err != nil {
 		return "", err
 	}
-	if err := utils.UnzipWithFile(winpty_zip, dllDir, utils.T_UTF8); err != nil {
+	if err := utils.UnzipWithFile(bytes.NewReader(winpty_zip), dllDir, utils.T_UTF8); err != nil {
 		return "", err
 	}
 	return dllDir, nil
