@@ -13,7 +13,7 @@ import (
 	"github.com/MCSManager/pty/console/go-winpty"
 	"github.com/MCSManager/pty/console/iface"
 	"github.com/MCSManager/pty/utils"
-	"github.com/juju/fslock"
+	mutex "github.com/juju/mutex/v2"
 )
 
 //go:embed winpty
@@ -84,14 +84,24 @@ func (c *console) buildCmd(args []string) (string, error) {
 	return cmds[:len(cmds)-1], nil
 }
 
+type fakeClock struct {
+	delay time.Duration
+}
+
+func (f *fakeClock) After(time.Duration) <-chan time.Time {
+	return time.After(f.delay)
+}
+
+func (f *fakeClock) Now() time.Time {
+	return time.Now()
+}
+
 func (c *console) findDll() (string, error) {
-	// File locks prevent concurrent file corruption
-	flock := fslock.New(filepath.Join(os.TempDir(), "pty_winpty_lock"))
-	if err := flock.LockWithTimeout(time.Second * 5); err != nil {
+	r, err := mutex.Acquire(mutex.Spec{Name: "pty-winpty-lock", Timeout: time.Second * 5, Delay: time.Millisecond * 3, Clock: &fakeClock{}})
+	if err != nil {
 		return "", err
 	}
-	defer flock.Unlock()
-
+	defer r.Release()
 	dllDir := filepath.Join(os.TempDir(), "pty_winpty")
 
 	if err := os.MkdirAll(dllDir, os.ModePerm); err != nil {

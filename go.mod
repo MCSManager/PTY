@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/creack/pty v1.1.18
-	github.com/juju/fslock v0.0.0-20160525022230-4d5c94c67b4b
+	github.com/juju/mutex/v2 v2.0.0
 	github.com/klauspost/compress v1.15.14
 	github.com/mattn/go-colorable v0.1.13
 	github.com/mholt/archiver/v4 v4.0.0-alpha.7.0.20230110184059-f1ef6ebbdf2a
@@ -23,8 +23,8 @@ require (
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
+	github.com/juju/errors v0.0.0-20220203013757-bd733f3c86b9 // indirect
 	github.com/klauspost/pgzip v1.2.5 // indirect
-	github.com/kr/text v0.2.0 // indirect
 	github.com/lufia/plan9stats v0.0.0-20230110061619-bbe2e5e100de // indirect
 	github.com/mattn/go-isatty v0.0.17 // indirect
 	github.com/nwaples/rardecode/v2 v2.0.0-beta.2 // indirect
@@ -37,5 +37,4 @@ require (
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
 	go4.org v0.0.0-20201209231011-d4a079459e60 // indirect
 	golang.org/x/sys v0.4.0 // indirect
-	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 )
