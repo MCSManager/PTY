@@ -1,17 +1,30 @@
 package utils
 
 import (
-	"archive/zip"
-	"bufio"
 	"compress/flate"
+	"context"
 	"errors"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/klauspost/compress/zip"
+
+	archiver "github.com/mholt/archiver/v4"
 )
 
-// 示例 zip.Zip("MCSManager 9.4.5_win64_x86", "./test.zip") 可使用相对路径和绝对路径
+func init() {
+	zip.RegisterCompressor(flate.BestCompression, func(w io.Writer) (io.WriteCloser, error) {
+		return flate.NewWriter(w, flate.BestCompression)
+	})
+	zip.RegisterCompressor(flate.BestSpeed, func(w io.Writer) (io.WriteCloser, error) {
+		return flate.NewWriter(w, flate.BestSpeed)
+	})
+	zip.RegisterDecompressor(flate.BestCompression, flate.NewReader)
+	zip.RegisterDecompressor(flate.BestSpeed, flate.NewReader)
+}
+
 func Zip(filePath []string, zipPath string) error {
 	if len(filePath) == 0 {
 		return errors.New("file is nil")
@@ -44,54 +57,49 @@ func Zip(filePath []string, zipPath string) error {
 	if err != nil {
 		return err
 	}
-	if strings.ToLower(filepath.Ext(zipPath)) != ".zip" {
+	zipExi := strings.ToLower(filepath.Ext(zipPath))
+	var format archiver.CompressedArchive
+	switch zipExi {
+	case "":
 		zipPath += ".zip"
+		format = archiver.CompressedArchive{
+			Archival: archiver.Zip{Compression: zip.Deflate, SelectiveCompression: true},
+		}
+	case ".tar":
+		format = archiver.CompressedArchive{
+			Archival: archiver.Tar{},
+		}
+	case ".gz", ".tgz":
+		format = archiver.CompressedArchive{
+			Compression: archiver.Gz{CompressionLevel: flate.DefaultCompression, Multithreaded: true},
+			Archival:    archiver.Tar{},
+		}
+	case ".zip":
+		format = archiver.CompressedArchive{
+			Archival: archiver.Zip{Compression: zip.Deflate, SelectiveCompression: true},
+		}
+	}
+	fileMap := make(map[string]string)
+	for _, fPath := range filePath {
+		fileMap[fPath] = strings.TrimPrefix(strings.TrimPrefix(fPath, baseDir), string(os.PathSeparator))
+	}
+	files, err := archiver.FilesFromDisk(nil, fileMap)
+	if err != nil {
+		return err
 	}
 	err = os.MkdirAll(filepath.Dir(zipPath), os.ModePerm)
 	if err != nil {
 		return err
 	}
-	zipFileNamePrefix := strings.TrimPrefix(strings.TrimPrefix(zipPath, baseDir), string(os.PathSeparator))
 	zipfile, err := os.Create(zipPath)
 	if err != nil {
 		return err
 	}
 	defer zipfile.Close()
-	buf := bufio.NewWriterSize(zipfile, 4*bufSize)
-	defer buf.Flush()
-	zw := zip.NewWriter(buf)
-	defer zw.Close()
-	zw.RegisterCompressor(zip.Deflate, func(out io.Writer) (io.WriteCloser, error) {
-		return flate.NewWriter(out, flate.BestCompression)
-	})
-	for _, fPath := range filePath {
-		err = filepath.Walk(fPath, func(path string, info os.FileInfo, err error) error {
-			if err != nil {
-				return err
-			}
-			filePath := strings.TrimPrefix(strings.TrimPrefix(path, baseDir), string(os.PathSeparator))
-			if info.IsDir() {
-				_, err = zw.Create(filePath + `/`)
-				return err
-			}
-			if filePath == zipFileNamePrefix {
-				return nil
-			}
-			zipfile, err := zw.Create(filePath)
-			if err != nil {
-				return err
-			}
-			f1, err := os.Open(path)
-			if err != nil {
-				return err
-			}
-			defer f1.Close()
-			_, err = io.CopyBuffer(zipfile, f1, make([]byte, bufSize))
-			return err
-		})
-		if err != nil {
-			return err
-		}
+
+	err = format.Archive(context.Background(), zipfile, files)
+	if err != nil {
+		return err
 	}
 	return err
 }

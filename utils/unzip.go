@@ -13,7 +13,7 @@ import (
 	"golang.org/x/text/transform"
 )
 
-const bufSize = 1024 * 1024 * 4
+const bufSize = 512 * 1024
 
 // 示例: zip.Unzip("./mcsm.zip", "./", "auto") 可使用相对路径和绝对路径
 func Unzip(zipPath, targetPath string, coderTypes CoderType) error {
@@ -33,27 +33,24 @@ func Unzip(zipPath, targetPath string, coderTypes CoderType) error {
 		return err
 	}
 	defer zipFile.Close()
-	format, r, err := archiver.Identify("", zipFile)
+	bufio.NewReader(zipFile)
+	format, _, err := archiver.Identify(filepath.Base(zipPath), zipFile)
 	if err != nil {
 		return err
 	}
 	if coderTypes == T_Auto {
-		m := zipEncode(format, r, isUtf8, isGBK)
-		s, ok := r.(io.Seeker)
-		if !ok {
-			return errors.New("io seek err")
-		}
-		_, err = s.Seek(0, io.SeekStart)
+		m := zipEncode(format, zipFile, isUtf8, isGBK)
+		_, err = zipFile.Seek(0, io.SeekStart)
 		if err != nil {
 			return err
 		}
 		if m[T_UTF8] || !m[T_GBK] {
-			err = decode(format, bufio.NewReaderSize(r, 4*bufSize), targetPath, T_UTF8)
+			err = decode(format, zipFile, targetPath, T_UTF8)
 		} else {
-			err = decode(format, bufio.NewReaderSize(r, 4*bufSize), targetPath, T_GBK)
+			err = decode(format, zipFile, targetPath, T_GBK)
 		}
 	} else {
-		err = decode(format, bufio.NewReaderSize(r, 4*bufSize), targetPath, coderTypes)
+		err = decode(format, zipFile, targetPath, coderTypes)
 	}
 	return err
 }
@@ -88,6 +85,7 @@ func zipEncode(format archiver.Format, r io.Reader, fun ...func(data []byte) (bo
 func decode(format archiver.Format, r io.Reader, targetPath string, coderTypes CoderType) error {
 	decoder := newDeCoder(coderTypes)
 	if ex, ok := format.(archiver.Extractor); ok {
+		buffer := make([]byte, bufSize)
 		return ex.Extract(context.Background(), r, nil, func(ctx context.Context, f archiver.File) error {
 			if result, _, err := transform.String(decoder, f.NameInArchive); err != nil {
 				return err
@@ -117,7 +115,7 @@ func decode(format archiver.Format, r io.Reader, targetPath string, coderTypes C
 					} else {
 						outFile = file
 					}
-					_, err = io.CopyBuffer(outFile, inFile, make([]byte, bufSize))
+					_, err = io.CopyBuffer(outFile, inFile, buffer)
 					return err
 				}
 			}

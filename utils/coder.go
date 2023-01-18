@@ -158,12 +158,12 @@ func isUtf8(data []byte) (bool, CoderType) {
 func isGBK(data []byte) (bool, CoderType) {
 	length := len(data)
 	var i int = 0
-	for i < length && i+1 < length {
+	for i < length {
 		if data[i] <= 0x7f {
 			//编码0~127,只有一个字节的编码，兼容ASCII码
 			i++
 			continue
-		} else {
+		} else if i+1 < length {
 			//大于127的使用双字节编码，落在gbk编码范围内的字符
 			if data[i] >= 0x81 &&
 				data[i] <= 0xfe &&
@@ -172,10 +172,9 @@ func isGBK(data []byte) (bool, CoderType) {
 				data[i+1] != 0x7f {
 				i += 2
 				continue
-			} else {
-				return false, T_GBK
 			}
 		}
+		return false, T_GBK
 	}
 	return true, T_GBK
 }
