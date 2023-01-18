@@ -4,6 +4,7 @@ import (
 	"compress/flate"
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -25,7 +26,7 @@ func init() {
 	zip.RegisterDecompressor(flate.BestSpeed, flate.NewReader)
 }
 
-func Zip(filePath []string, zipPath string) error {
+func Zip(ctx context.Context, filePath []string, zipPath string) error {
 	if len(filePath) == 0 {
 		return errors.New("file is nil")
 	}
@@ -81,7 +82,13 @@ func Zip(filePath []string, zipPath string) error {
 	}
 	fileMap := make(map[string]string)
 	for _, fPath := range filePath {
-		fileMap[fPath] = strings.TrimPrefix(strings.TrimPrefix(fPath, baseDir), string(os.PathSeparator))
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+			fmt.Println(fPath)
+			fileMap[fPath] = strings.TrimPrefix(strings.TrimPrefix(fPath, baseDir), string(os.PathSeparator))
+		}
 	}
 	files, err := archiver.FilesFromDisk(nil, fileMap)
 	if err != nil {
@@ -96,8 +103,8 @@ func Zip(filePath []string, zipPath string) error {
 		return err
 	}
 	defer zipfile.Close()
-
-	err = format.Archive(context.Background(), zipfile, files)
+	fmt.Println("Archiving, please wait...")
+	err = format.Archive(ctx, zipfile, files)
 	if err != nil {
 		return err
 	}

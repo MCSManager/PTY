@@ -1,6 +1,7 @@
 package start
 
 import (
+	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -43,12 +44,12 @@ func Main() {
 	args := flag.Args()
 	switch mode {
 	case "zip":
-		if err := utils.Zip(args[:len(args)-1], args[len(args)-1]); err != nil {
+		if err := utils.Zip(context.Background(), args[:len(args)-1], args[len(args)-1]); err != nil {
 			fmt.Println(err.Error())
 			os.Exit(1)
 		}
 	case "unzip":
-		if err := utils.Unzip(args[0], args[1], utils.CoderToType(coder)); err != nil {
+		if err := utils.Unzip(context.Background(), args[0], args[1], utils.CoderToType(coder)); err != nil {
 			fmt.Println(err.Error())
 			os.Exit(1)
 		}
