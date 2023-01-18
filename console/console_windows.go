@@ -1,9 +1,6 @@
 package console
 
 import (
-	"archive/zip"
-	"bufio"
-	"bytes"
 	_ "embed"
 	"fmt"
 	"io"
@@ -99,49 +96,10 @@ func (c *console) findDll() (string, error) {
 	if err := os.MkdirAll(dllDir, os.ModePerm); err != nil {
 		return "", err
 	}
-	if err := releases(bytes.NewReader(winpty_zip), dllDir); err != nil {
+	if err := utils.UnzipWithFile(winpty_zip, dllDir, utils.T_UTF8); err != nil {
 		return "", err
 	}
 	return dllDir, nil
-}
-
-// release winpty prepend
-func releases(f *bytes.Reader, targetPath string) error {
-	zipReader, err := zip.NewReader(f, f.Size())
-	if err != nil {
-		return err
-	}
-
-	for _, f := range zipReader.File {
-		fpath := filepath.Join(targetPath, f.Name)
-		info, statErr := os.Stat(fpath)
-		// Check if the file is complete
-		if statErr == nil && f.FileInfo().Size() == info.Size() {
-			continue
-		}
-		inFile, err := f.Open()
-		if err != nil {
-			return err
-		}
-		outFile, err := os.OpenFile(fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, os.ModePerm)
-		if err != nil {
-			return err
-		}
-		buf := bufio.NewWriter(outFile)
-		if _, err = io.Copy(buf, inFile); err != nil {
-			return err
-		}
-		if err := buf.Flush(); err != nil {
-			return err
-		}
-		if err := inFile.Close(); err != nil {
-			return err
-		}
-		if err := outFile.Close(); err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 // set pty window size
