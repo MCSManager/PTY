@@ -9,21 +9,26 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/klauspost/compress/zip"
 
 	archiver "github.com/mholt/archiver/v4"
 )
 
-func init() {
-	zip.RegisterCompressor(flate.BestCompression, func(w io.Writer) (io.WriteCloser, error) {
-		return flate.NewWriter(w, flate.BestCompression)
+var initZipCompressor = sync.Once{}
+
+func _initZipCompressor() {
+	initZipCompressor.Do(func() {
+		zip.RegisterCompressor(flate.BestCompression, func(w io.Writer) (io.WriteCloser, error) {
+			return flate.NewWriter(w, flate.BestCompression)
+		})
+		zip.RegisterCompressor(flate.BestSpeed, func(w io.Writer) (io.WriteCloser, error) {
+			return flate.NewWriter(w, flate.BestSpeed)
+		})
+		zip.RegisterDecompressor(flate.BestCompression, flate.NewReader)
+		zip.RegisterDecompressor(flate.BestSpeed, flate.NewReader)
 	})
-	zip.RegisterCompressor(flate.BestSpeed, func(w io.Writer) (io.WriteCloser, error) {
-		return flate.NewWriter(w, flate.BestSpeed)
-	})
-	zip.RegisterDecompressor(flate.BestCompression, flate.NewReader)
-	zip.RegisterDecompressor(flate.BestSpeed, flate.NewReader)
 }
 
 type ZipCfg struct {
@@ -33,6 +38,7 @@ type ZipCfg struct {
 }
 
 func Zip(ZipPath string, cfg ZipCfg) error {
+	_initZipCompressor()
 	if cfg.Ctx == nil {
 		cfg.Ctx = context.Background()
 	}

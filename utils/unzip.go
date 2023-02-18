@@ -24,6 +24,7 @@ type UnzipCfg struct {
 }
 
 func Unzip(zipPath string, cfg UnzipCfg) (err error) {
+	_initZipCompressor()
 	if cfg.Ctx == nil {
 		cfg.Ctx = context.Background()
 	}
@@ -46,6 +47,7 @@ func Unzip(zipPath string, cfg UnzipCfg) (err error) {
 }
 
 func UnzipWithFile(zipFile io.Reader, cfg UnzipCfg) error {
+	_initZipCompressor()
 	if cfg.Ctx == nil {
 		cfg.Ctx = context.Background()
 	}
