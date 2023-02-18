@@ -142,6 +142,7 @@ func OpenWithOptions(options Options) (*WinPTY, error) {
 }
 
 func (pty *WinPTY) Pid() int {
+	setupKernel32()
 	pid, _, _ := GetProcessId.Call(pty.procHandle)
 	return int(pid)
 }

@@ -57,7 +57,10 @@ var (
 	GetProcessId *syscall.LazyProc
 )
 
-func init() {
+func setupKernel32() {
+	if kernel32 != nil {
+		return
+	}
 	kernel32 = syscall.NewLazyDLL("kernel32.dll")
 	GetProcessId = kernel32.NewProc("GetProcessId")
 }
