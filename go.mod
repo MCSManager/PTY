@@ -5,15 +5,15 @@ go 1.18
 require (
 	github.com/creack/pty v1.1.18
 	github.com/juju/mutex/v2 v2.0.0
-	github.com/klauspost/compress v1.15.14
+	github.com/klauspost/compress v1.15.15
 	github.com/mattn/go-colorable v0.1.13
-	github.com/mholt/archiver/v4 v4.0.0-alpha.7.0.20230110184059-f1ef6ebbdf2a
-	github.com/shirou/gopsutil/v3 v3.22.12
-	golang.org/x/text v0.6.0
+	github.com/mholt/archiver/v4 v4.0.0-alpha.7.0.20230208220441-4c6dd986bfd3
+	github.com/shirou/gopsutil/v3 v3.23.1
+	golang.org/x/text v0.7.0
 )
 
 require (
-	github.com/andybalholm/brotli v1.0.4 // indirect
+	github.com/andybalholm/brotli v1.0.5 // indirect
 	github.com/bodgit/plumbing v1.3.0 // indirect
 	github.com/bodgit/sevenzip v1.4.0 // indirect
 	github.com/bodgit/windows v1.0.1 // indirect
@@ -23,7 +23,7 @@ require (
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
-	github.com/juju/errors v0.0.0-20220203013757-bd733f3c86b9 // indirect
+	github.com/juju/errors v1.0.0 // indirect
 	github.com/klauspost/pgzip v1.2.5 // indirect
 	github.com/lufia/plan9stats v0.0.0-20230110061619-bbe2e5e100de // indirect
 	github.com/mattn/go-isatty v0.0.17 // indirect
@@ -36,5 +36,5 @@ require (
 	github.com/ulikunitz/xz v0.5.11 // indirect
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
 	go4.org v0.0.0-20201209231011-d4a079459e60 // indirect
-	golang.org/x/sys v0.4.0 // indirect
+	golang.org/x/sys v0.5.0 // indirect
 )
