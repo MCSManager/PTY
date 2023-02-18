@@ -16,57 +16,68 @@ import (
 
 const bufSize = 512 * 1024
 
-// 示例: zip.Unzip("./mcsm.zip", "./", "auto") 可使用相对路径和绝对路径
-func Unzip(ctx context.Context, zipPath, targetPath string, coderTypes CoderType) error {
-	var err error
-	if targetPath, err = filepath.Abs(targetPath); err != nil {
-		return err
+type UnzipCfg struct {
+	Ctx                       context.Context
+	TargetPath                string
+	CoderTypes                CoderType
+	SkipExistFile, Exhaustive bool
+}
+
+func Unzip(zipPath string, cfg UnzipCfg) (err error) {
+	if cfg.Ctx == nil {
+		cfg.Ctx = context.Background()
 	}
-	err = os.MkdirAll(targetPath, os.ModePerm)
+	if cfg.TargetPath, err = filepath.Abs(cfg.TargetPath); err != nil {
+		return
+	}
+	err = os.MkdirAll(cfg.TargetPath, os.ModePerm)
 	if err != nil {
-		return err
+		return
 	}
 	if zipPath, err = filepath.Abs(zipPath); err != nil {
-		return err
+		return
 	}
 	zipFile, err := os.Open(zipPath)
 	if err != nil {
-		return err
+		return
 	}
 	defer zipFile.Close()
-	return UnzipWithFile(ctx, zipFile, targetPath, coderTypes)
+	return UnzipWithFile(zipFile, cfg)
 }
 
-func UnzipWithFile(ctx context.Context, file io.Reader, targetPath string, coderTypes CoderType) error {
-	seek, ok := file.(io.Seeker)
+func UnzipWithFile(zipFile io.Reader, cfg UnzipCfg) error {
+	if cfg.Ctx == nil {
+		cfg.Ctx = context.Background()
+	}
+	seek, ok := zipFile.(io.Seeker)
 	if !ok {
 		return errors.New("seek file error")
 	}
 	var err error
-	if targetPath, err = filepath.Abs(targetPath); err != nil {
+	if cfg.TargetPath, err = filepath.Abs(cfg.TargetPath); err != nil {
 		return err
 	}
-	err = os.MkdirAll(targetPath, os.ModePerm)
+	err = os.MkdirAll(cfg.TargetPath, os.ModePerm)
 	if err != nil {
 		return err
 	}
-	format, _, err := archiver.Identify("", file)
+	format, _, err := archiver.Identify("", zipFile)
 	if err != nil {
 		return err
 	}
-	if coderTypes == T_Auto {
-		m := zipEncode(ctx, format, file, isUtf8, isGBK)
+	if cfg.CoderTypes == T_Auto {
+		m := zipEncode(cfg.Ctx, format, zipFile, isUtf8, isGBK)
 		_, err = seek.Seek(0, io.SeekStart)
 		if err != nil {
 			return err
 		}
 		if m[T_UTF8] || !m[T_GBK] {
-			err = decode(ctx, format, file, targetPath, T_UTF8)
+			err = decode(format, zipFile, cfg)
 		} else {
-			err = decode(ctx, format, file, targetPath, T_GBK)
+			err = decode(format, zipFile, cfg)
 		}
 	} else {
-		err = decode(ctx, format, file, targetPath, coderTypes)
+		err = decode(format, zipFile, cfg)
 	}
 	return err
 }
@@ -98,11 +109,11 @@ func zipEncode(ctx context.Context, format archiver.Format, r io.Reader, fun ...
 	return
 }
 
-func decode(ctx context.Context, format archiver.Format, r io.Reader, targetPath string, coderTypes CoderType) error {
-	decoder := newDeCoder(coderTypes)
+func decode(format archiver.Format, r io.Reader, cfg UnzipCfg) error {
+	decoder := newDeCoder(cfg.CoderTypes)
 	if ex, ok := format.(archiver.Extractor); ok {
 		buffer := make([]byte, bufSize)
-		return ex.Extract(ctx, r, nil, func(ctx context.Context, f archiver.File) error {
+		return ex.Extract(cfg.Ctx, r, nil, func(ctx context.Context, f archiver.File) error {
 			select {
 			case <-ctx.Done():
 				return ctx.Err()
@@ -111,19 +122,28 @@ func decode(ctx context.Context, format archiver.Format, r io.Reader, targetPath
 					fmt.Printf("File %s err: %v", f.NameInArchive, err)
 					return err
 				} else {
-					fmt.Println(result)
-					fpath := filepath.Join(targetPath, result)
+					if cfg.Exhaustive {
+						fmt.Println(result)
+					}
+					fpath := filepath.Join(cfg.TargetPath, result)
 					if f.IsDir() {
 						return os.MkdirAll(fpath, f.Mode())
 					} else {
-						if err := os.MkdirAll(filepath.Dir(fpath), os.ModePerm); err != nil {
-							return err
+						if cfg.SkipExistFile {
+							_, err := os.Stat(fpath)
+							if err == nil {
+								return err
+							}
 						}
 						inFile, err := f.Open()
 						if err != nil {
 							return err
 						}
 						defer inFile.Close()
+
+						if err := os.MkdirAll(filepath.Dir(fpath), os.ModePerm); err != nil {
+							return err
+						}
 						file, err := os.OpenFile(fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
 						if err != nil {
 							return err

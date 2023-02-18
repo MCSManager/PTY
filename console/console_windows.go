@@ -2,7 +2,6 @@ package console
 
 import (
 	"bytes"
-	"context"
 	_ "embed"
 	"fmt"
 	"io"
@@ -38,7 +37,7 @@ type console struct {
 
 // start pty subroutine
 func (c *console) Start(dir string, command []string) error {
-	dllDir, err := c.findDll()
+	dllDir, err := c.findDll(true)
 	if err != nil {
 		return err
 	}
@@ -62,14 +61,17 @@ func (c *console) Start(dir string, command []string) error {
 
 	// creat stderr
 	option.AgentFlags = winpty.WINPTY_FLAG_CONERR | winpty.WINPTY_FLAG_COLOR_ESCAPES
-	if cmd, err := winpty.OpenWithOptions(option); err != nil {
-		return err
-	} else {
-		c.stdIn = cmd.Stdin
-		c.stdOut = cmd.Stdout
-		c.stdErr = cmd.Stderr
-		c.file = cmd
+	var pty *winpty.WinPTY
+	if pty, err = winpty.OpenWithOptions(option); err != nil {
+		c.findDll(false)
+		if pty, err = winpty.OpenWithOptions(option); err != nil {
+			return err
+		}
 	}
+	c.stdIn = pty.Stdin
+	c.stdOut = pty.Stdout
+	c.stdErr = pty.Stderr
+	c.file = pty
 	return nil
 }
 
@@ -97,7 +99,7 @@ func (f *fakeClock) Now() time.Time {
 	return time.Now()
 }
 
-func (c *console) findDll() (string, error) {
+func (c *console) findDll(SkipExistFile bool) (string, error) {
 	r, err := mutex.Acquire(mutex.Spec{Name: "pty-winpty-lock", Timeout: time.Second * 5, Delay: time.Millisecond * 3, Clock: &fakeClock{}})
 	if err != nil {
 		return "", err
@@ -108,7 +110,11 @@ func (c *console) findDll() (string, error) {
 	if err := os.MkdirAll(dllDir, os.ModePerm); err != nil {
 		return "", err
 	}
-	if err := utils.UnzipWithFile(context.Background(), bytes.NewReader(winpty_zip), dllDir, utils.T_UTF8); err != nil {
+	if err := utils.UnzipWithFile(bytes.NewReader(winpty_zip), utils.UnzipCfg{
+		TargetPath:    dllDir,
+		CoderTypes:    utils.T_UTF8,
+		SkipExistFile: SkipExistFile,
+	}); err != nil {
 		return "", err
 	}
 	return dllDir, nil

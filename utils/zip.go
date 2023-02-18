@@ -26,43 +26,52 @@ func init() {
 	zip.RegisterDecompressor(flate.BestSpeed, flate.NewReader)
 }
 
-func Zip(ctx context.Context, filePath []string, zipPath string) error {
-	if len(filePath) == 0 {
+type ZipCfg struct {
+	Ctx        context.Context
+	FilePath   []string
+	Exhaustive bool
+}
+
+func Zip(ZipPath string, cfg ZipCfg) error {
+	if cfg.Ctx == nil {
+		cfg.Ctx = context.Background()
+	}
+	if len(cfg.FilePath) == 0 {
 		return errors.New("file is nil")
 	}
 	var err error
-	filePath[0], err = filepath.Abs(filePath[0])
+	cfg.FilePath[0], err = filepath.Abs(cfg.FilePath[0])
 	if err != nil {
 		return err
 	}
-	var baseDir = filepath.Dir(filePath[0])
-	if len(filePath) == 1 {
-		fi, err := os.Stat(filePath[0])
+	var baseDir = filepath.Dir(cfg.FilePath[0])
+	if len(cfg.FilePath) == 1 {
+		fi, err := os.Stat(cfg.FilePath[0])
 		if err != nil {
 			return err
 		}
 		if fi.IsDir() {
-			baseDir = filePath[0]
+			baseDir = cfg.FilePath[0]
 		}
 	}
-	for k, v := range filePath[1:] {
-		filePath[k+1], err = filepath.Abs(v)
+	for k, v := range cfg.FilePath[1:] {
+		cfg.FilePath[k+1], err = filepath.Abs(v)
 		if err != nil {
 			return err
 		}
-		if filepath.Dir(filePath[k+1]) != baseDir {
+		if filepath.Dir(cfg.FilePath[k+1]) != baseDir {
 			return errors.New("base dir err")
 		}
 	}
-	zipPath, err = filepath.Abs(zipPath)
+	ZipPath, err = filepath.Abs(ZipPath)
 	if err != nil {
 		return err
 	}
-	zipExi := strings.ToLower(filepath.Ext(zipPath))
+	zipExi := strings.ToLower(filepath.Ext(ZipPath))
 	var format archiver.CompressedArchive
 	switch zipExi {
 	case "":
-		zipPath += ".zip"
+		ZipPath += ".zip"
 		format = archiver.CompressedArchive{
 			Archival: archiver.Zip{Compression: zip.Deflate, SelectiveCompression: true},
 		}
@@ -81,12 +90,14 @@ func Zip(ctx context.Context, filePath []string, zipPath string) error {
 		}
 	}
 	fileMap := make(map[string]string)
-	for _, fPath := range filePath {
+	for _, fPath := range cfg.FilePath {
 		select {
-		case <-ctx.Done():
-			return ctx.Err()
+		case <-cfg.Ctx.Done():
+			return cfg.Ctx.Err()
 		default:
-			fmt.Println(fPath)
+			if cfg.Exhaustive {
+				fmt.Println(fPath)
+			}
 			fileMap[fPath] = strings.TrimPrefix(strings.TrimPrefix(fPath, baseDir), string(os.PathSeparator))
 		}
 	}
@@ -94,17 +105,17 @@ func Zip(ctx context.Context, filePath []string, zipPath string) error {
 	if err != nil {
 		return err
 	}
-	err = os.MkdirAll(filepath.Dir(zipPath), os.ModePerm)
+	err = os.MkdirAll(filepath.Dir(ZipPath), os.ModePerm)
 	if err != nil {
 		return err
 	}
-	zipfile, err := os.Create(zipPath)
+	zipfile, err := os.Create(ZipPath)
 	if err != nil {
 		return err
 	}
 	defer zipfile.Close()
 	fmt.Println("Archiving, please wait...")
-	err = format.Archive(ctx, zipfile, files)
+	err = format.Archive(cfg.Ctx, zipfile, files)
 	if err != nil {
 		return err
 	}
