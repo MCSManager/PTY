@@ -24,17 +24,6 @@ type UnzipCfg struct {
 }
 
 func Unzip(zipPath string, cfg UnzipCfg) (err error) {
-	_initZipCompressor()
-	if cfg.Ctx == nil {
-		cfg.Ctx = context.Background()
-	}
-	if cfg.TargetPath, err = filepath.Abs(cfg.TargetPath); err != nil {
-		return
-	}
-	err = os.MkdirAll(cfg.TargetPath, os.ModePerm)
-	if err != nil {
-		return
-	}
 	if zipPath, err = filepath.Abs(zipPath); err != nil {
 		return
 	}
