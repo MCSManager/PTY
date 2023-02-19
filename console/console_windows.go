@@ -66,9 +66,12 @@ func (c *console) Start(dir string, command []string) error {
 
 	// creat stderr
 	option.AgentFlags = winpty.WINPTY_FLAG_CONERR | winpty.WINPTY_FLAG_COLOR_ESCAPES
+
 	var pty *winpty.WinPTY
 	if pty, err = winpty.OpenWithOptions(option); err != nil {
-		c.findDll(false)
+		if option.DllDir, err = c.findDll(false); err != nil {
+			return err
+		}
 		if pty, err = winpty.OpenWithOptions(option); err != nil {
 			return err
 		}
