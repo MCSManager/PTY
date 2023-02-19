@@ -98,7 +98,6 @@ func runPTY() {
 
 func handleStdIO(c pty.Console) {
 	go io.Copy(c.StdIn(), os.Stdin)
-	colorAble = false
 	if runtime.GOOS == "windows" && c.StdErr() != nil {
 		var stdErr io.Writer
 		if colorAble {
