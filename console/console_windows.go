@@ -37,6 +37,11 @@ type console struct {
 
 // start pty subroutine
 func (c *console) Start(dir string, command []string) error {
+	r, err := mutex.Acquire(mutex.Spec{Name: "pty-winpty-lock", Timeout: time.Second * 5, Delay: time.Millisecond * 3, Clock: &fakeClock{}})
+	if err != nil {
+		return err
+	}
+	defer r.Release()
 	dllDir, err := c.findDll(true)
 	if err != nil {
 		return err
@@ -100,11 +105,6 @@ func (f *fakeClock) Now() time.Time {
 }
 
 func (c *console) findDll(SkipExistFile bool) (string, error) {
-	r, err := mutex.Acquire(mutex.Spec{Name: "pty-winpty-lock", Timeout: time.Second * 5, Delay: time.Millisecond * 3, Clock: &fakeClock{}})
-	if err != nil {
-		return "", err
-	}
-	defer r.Release()
 	dllDir := filepath.Join(os.TempDir(), "pty_winpty")
 
 	if err := os.MkdirAll(dllDir, os.ModePerm); err != nil {
