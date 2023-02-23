@@ -33,39 +33,38 @@ func _initZipCompressor() {
 
 type ZipCfg struct {
 	Ctx        context.Context
-	FilePath   []string
 	Exhaustive bool
 }
 
-func Zip(ZipPath string, cfg ZipCfg) error {
+func Zip(FilePath []string, ZipPath string, cfg ZipCfg) error {
 	_initZipCompressor()
 	if cfg.Ctx == nil {
 		cfg.Ctx = context.Background()
 	}
-	if len(cfg.FilePath) == 0 {
+	if len(FilePath) == 0 {
 		return errors.New("file is nil")
 	}
 	var err error
-	cfg.FilePath[0], err = filepath.Abs(cfg.FilePath[0])
+	FilePath[0], err = filepath.Abs(FilePath[0])
 	if err != nil {
 		return err
 	}
-	var baseDir = filepath.Dir(cfg.FilePath[0])
-	if len(cfg.FilePath) == 1 {
-		fi, err := os.Stat(cfg.FilePath[0])
+	var baseDir = filepath.Dir(FilePath[0])
+	if len(FilePath) == 1 {
+		fi, err := os.Stat(FilePath[0])
 		if err != nil {
 			return err
 		}
 		if fi.IsDir() {
-			baseDir = cfg.FilePath[0]
+			baseDir = FilePath[0]
 		}
 	}
-	for k, v := range cfg.FilePath[1:] {
-		cfg.FilePath[k+1], err = filepath.Abs(v)
+	for k, v := range FilePath[1:] {
+		FilePath[k+1], err = filepath.Abs(v)
 		if err != nil {
 			return err
 		}
-		if filepath.Dir(cfg.FilePath[k+1]) != baseDir {
+		if filepath.Dir(FilePath[k+1]) != baseDir {
 			return errors.New("base dir err")
 		}
 	}
@@ -96,7 +95,7 @@ func Zip(ZipPath string, cfg ZipCfg) error {
 		}
 	}
 	fileMap := make(map[string]string)
-	for _, fPath := range cfg.FilePath {
+	for _, fPath := range FilePath {
 		select {
 		case <-cfg.Ctx.Done():
 			return cfg.Ctx.Err()

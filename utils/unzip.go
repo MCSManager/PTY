@@ -18,12 +18,11 @@ const bufSize = 512 * 1024
 
 type UnzipCfg struct {
 	Ctx                       context.Context
-	TargetPath                string
 	CoderTypes                CoderType
 	SkipExistFile, Exhaustive bool
 }
 
-func Unzip(zipPath string, cfg UnzipCfg) (err error) {
+func Unzip(zipPath string, TargetPath string, cfg UnzipCfg) (err error) {
 	if zipPath, err = filepath.Abs(zipPath); err != nil {
 		return
 	}
@@ -32,10 +31,10 @@ func Unzip(zipPath string, cfg UnzipCfg) (err error) {
 		return
 	}
 	defer zipFile.Close()
-	return UnzipWithFile(zipFile, cfg)
+	return UnzipWithFile(zipFile, TargetPath, cfg)
 }
 
-func UnzipWithFile(zipFile io.Reader, cfg UnzipCfg) error {
+func UnzipWithFile(zipFile io.Reader, TargetPath string, cfg UnzipCfg) error {
 	_initZipCompressor()
 	if cfg.Ctx == nil {
 		cfg.Ctx = context.Background()
@@ -45,10 +44,10 @@ func UnzipWithFile(zipFile io.Reader, cfg UnzipCfg) error {
 		return errors.New("seek file error")
 	}
 	var err error
-	if cfg.TargetPath, err = filepath.Abs(cfg.TargetPath); err != nil {
+	if TargetPath, err = filepath.Abs(TargetPath); err != nil {
 		return err
 	}
-	err = os.MkdirAll(cfg.TargetPath, os.ModePerm)
+	err = os.MkdirAll(TargetPath, os.ModePerm)
 	if err != nil {
 		return err
 	}
@@ -63,12 +62,12 @@ func UnzipWithFile(zipFile io.Reader, cfg UnzipCfg) error {
 			return err
 		}
 		if m[T_UTF8] || !m[T_GBK] {
-			err = decode(format, zipFile, cfg)
+			err = decode(format, zipFile, TargetPath, cfg)
 		} else {
-			err = decode(format, zipFile, cfg)
+			err = decode(format, zipFile, TargetPath, cfg)
 		}
 	} else {
-		err = decode(format, zipFile, cfg)
+		err = decode(format, zipFile, TargetPath, cfg)
 	}
 	return err
 }
@@ -100,7 +99,7 @@ func zipEncode(ctx context.Context, format archiver.Format, r io.Reader, fun ...
 	return
 }
 
-func decode(format archiver.Format, r io.Reader, cfg UnzipCfg) error {
+func decode(format archiver.Format, r io.Reader, TargetPath string, cfg UnzipCfg) error {
 	decoder := newDeCoder(cfg.CoderTypes)
 	if ex, ok := format.(archiver.Extractor); ok {
 		buffer := make([]byte, bufSize)
@@ -116,7 +115,7 @@ func decode(format archiver.Format, r io.Reader, cfg UnzipCfg) error {
 					if cfg.Exhaustive {
 						fmt.Println(result)
 					}
-					fpath := filepath.Join(cfg.TargetPath, result)
+					fpath := filepath.Join(TargetPath, result)
 					if f.IsDir() {
 						return os.MkdirAll(fpath, f.Mode())
 					} else {

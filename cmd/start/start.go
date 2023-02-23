@@ -45,12 +45,12 @@ func Main() {
 	args := flag.Args()
 	switch mode {
 	case "zip":
-		if err := utils.Zip(args[len(args)-1], utils.ZipCfg{FilePath: args[:len(args)-1], Exhaustive: exhaustive}); err != nil {
+		if err := utils.Zip(args[:len(args)-1], args[len(args)-1], utils.ZipCfg{Exhaustive: exhaustive}); err != nil {
 			fmt.Println(err.Error())
 			os.Exit(1)
 		}
 	case "unzip":
-		if err := utils.Unzip(args[0], utils.UnzipCfg{TargetPath: args[1], CoderTypes: utils.CoderToType(coder), SkipExistFile: skipExistFile, Exhaustive: exhaustive}); err != nil {
+		if err := utils.Unzip(args[0], args[1], utils.UnzipCfg{CoderTypes: utils.CoderToType(coder), SkipExistFile: skipExistFile, Exhaustive: exhaustive}); err != nil {
 			fmt.Println(err.Error())
 			os.Exit(1)
 		}

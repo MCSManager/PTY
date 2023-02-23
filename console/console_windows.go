@@ -113,8 +113,7 @@ func (c *console) findDll(SkipExistFile bool) (string, error) {
 	if err := os.MkdirAll(dllDir, os.ModePerm); err != nil {
 		return "", err
 	}
-	if err := utils.UnzipWithFile(bytes.NewReader(winpty_zip), utils.UnzipCfg{
-		TargetPath:    dllDir,
+	if err := utils.UnzipWithFile(bytes.NewReader(winpty_zip), dllDir, utils.UnzipCfg{
 		CoderTypes:    utils.T_UTF8,
 		SkipExistFile: SkipExistFile,
 	}); err != nil {
