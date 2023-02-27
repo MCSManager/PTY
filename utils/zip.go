@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"bufio"
 	"compress/flate"
 	"context"
 	"errors"
@@ -32,6 +33,7 @@ func _initZipCompressor() {
 }
 
 type ZipCfg struct {
+	BufferSize int
 	Ctx        context.Context
 	Exhaustive bool
 }
@@ -40,6 +42,9 @@ func Zip(FilePath []string, ZipPath string, cfg ZipCfg) error {
 	_initZipCompressor()
 	if cfg.Ctx == nil {
 		cfg.Ctx = context.Background()
+	}
+	if cfg.BufferSize == 0 {
+		cfg.BufferSize = bufSize
 	}
 	if len(FilePath) == 0 {
 		return errors.New("file is nil")
@@ -93,6 +98,8 @@ func Zip(FilePath []string, ZipPath string, cfg ZipCfg) error {
 		format = archiver.CompressedArchive{
 			Archival: archiver.Zip{Compression: zip.Deflate, SelectiveCompression: true},
 		}
+	default:
+		return errors.New("not support this exi")
 	}
 	fileMap := make(map[string]string)
 	for _, fPath := range FilePath {
@@ -120,9 +127,7 @@ func Zip(FilePath []string, ZipPath string, cfg ZipCfg) error {
 	}
 	defer zipfile.Close()
 	fmt.Println("Archiving, please wait...")
-	err = format.Archive(cfg.Ctx, zipfile, files)
-	if err != nil {
-		return err
-	}
-	return err
+	buf := bufio.NewWriterSize(zipfile, cfg.BufferSize)
+	defer buf.Flush()
+	return format.Archive(cfg.Ctx, buf, files)
 }

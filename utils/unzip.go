@@ -18,6 +18,7 @@ import (
 const bufSize = 512 * 1024
 
 type UnzipCfg struct {
+	BufferSize                int
 	Ctx                       context.Context
 	CoderTypes                CoderType
 	SkipExistFile, Exhaustive bool
@@ -39,6 +40,9 @@ func UnzipWithFile(zipFile io.Reader, TargetPath string, cfg UnzipCfg) error {
 	_initZipCompressor()
 	if cfg.Ctx == nil {
 		cfg.Ctx = context.Background()
+	}
+	if cfg.BufferSize == 0 {
+		cfg.BufferSize = bufSize
 	}
 	seek, ok := zipFile.(io.Seeker)
 	if !ok {
@@ -107,7 +111,7 @@ func decode(format archiver.Format, r io.Reader, TargetPath string, cfg UnzipCfg
 		decoder = newDeCoder(cfg.CoderTypes)
 	}
 	if ex, ok := format.(archiver.Extractor); ok {
-		buffer := make([]byte, bufSize)
+		buffer := make([]byte, cfg.BufferSize)
 		return ex.Extract(cfg.Ctx, r, nil, func(ctx context.Context, f archiver.File) error {
 			select {
 			case <-ctx.Done():
