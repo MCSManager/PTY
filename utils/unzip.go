@@ -11,6 +11,7 @@ import (
 
 	archiver "github.com/mholt/archiver/v4"
 
+	"golang.org/x/text/encoding"
 	"golang.org/x/text/transform"
 )
 
@@ -61,7 +62,8 @@ func UnzipWithFile(zipFile io.Reader, TargetPath string, cfg UnzipCfg) error {
 		if err != nil {
 			return err
 		}
-		if m[T_UTF8] || !m[T_GBK] {
+		if m[T_GBK] && !m[T_UTF8] {
+			cfg.CoderTypes = T_GBK
 			err = decode(format, zipFile, TargetPath, cfg)
 		} else {
 			err = decode(format, zipFile, TargetPath, cfg)
@@ -100,7 +102,10 @@ func zipEncode(ctx context.Context, format archiver.Format, r io.Reader, fun ...
 }
 
 func decode(format archiver.Format, r io.Reader, TargetPath string, cfg UnzipCfg) error {
-	decoder := newDeCoder(cfg.CoderTypes)
+	var decoder *encoding.Decoder
+	if cfg.CoderTypes != T_Auto {
+		decoder = newDeCoder(cfg.CoderTypes)
+	}
 	if ex, ok := format.(archiver.Extractor); ok {
 		buffer := make([]byte, bufSize)
 		return ex.Extract(cfg.Ctx, r, nil, func(ctx context.Context, f archiver.File) error {
@@ -108,49 +113,54 @@ func decode(format archiver.Format, r io.Reader, TargetPath string, cfg UnzipCfg
 			case <-ctx.Done():
 				return ctx.Err()
 			default:
-				if result, _, err := transform.String(decoder, f.NameInArchive); err != nil {
-					fmt.Printf("File %s err: %v", f.NameInArchive, err)
-					return err
+				var result string
+				if decoder == nil {
+					result = f.NameInArchive
 				} else {
-					if cfg.Exhaustive {
-						fmt.Println(result)
-					}
-					fpath := filepath.Join(TargetPath, result)
-					if f.IsDir() {
-						return os.MkdirAll(fpath, f.Mode())
-					} else {
-						if cfg.SkipExistFile {
-							_, err := os.Stat(fpath)
-							if err == nil {
-								return err
-							}
-						}
-						inFile, err := f.Open()
-						if err != nil {
-							return err
-						}
-						defer inFile.Close()
-
-						if err := os.MkdirAll(filepath.Dir(fpath), os.ModePerm); err != nil {
-							return err
-						}
-						file, err := os.OpenFile(fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
-						if err != nil {
-							return err
-						}
-						defer file.Close()
-						var outFile io.Writer
-						if f.Size() > bufSize {
-							buf := bufio.NewWriterSize(file, 4*bufSize)
-							outFile = buf
-							defer buf.Flush()
-						} else {
-							outFile = file
-						}
-						_, err = io.CopyBuffer(outFile, inFile, buffer)
+					var err error
+					result, _, err = transform.String(decoder, f.NameInArchive)
+					if err != nil {
+						fmt.Printf("File %s err: %v", f.NameInArchive, err)
 						return err
 					}
 				}
+				if cfg.Exhaustive {
+					fmt.Println(result)
+				}
+				fpath := filepath.Join(TargetPath, result)
+				if f.IsDir() {
+					return os.MkdirAll(fpath, f.Mode())
+				}
+				if cfg.SkipExistFile {
+					_, err := os.Stat(fpath)
+					if err == nil {
+						return err
+					}
+				}
+				inFile, err := f.Open()
+				if err != nil {
+					return err
+				}
+				defer inFile.Close()
+
+				if err := os.MkdirAll(filepath.Dir(fpath), os.ModePerm); err != nil {
+					return err
+				}
+				file, err := os.OpenFile(fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
+				if err != nil {
+					return err
+				}
+				defer file.Close()
+				var outFile io.Writer
+				if f.Size() > bufSize {
+					buf := bufio.NewWriterSize(file, 4*bufSize)
+					outFile = buf
+					defer buf.Flush()
+				} else {
+					outFile = file
+				}
+				_, err = io.CopyBuffer(outFile, inFile, buffer)
+				return err
 			}
 		})
 	}
