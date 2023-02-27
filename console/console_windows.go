@@ -37,15 +37,11 @@ type console struct {
 
 // start pty subroutine
 func (c *console) Start(dir string, command []string) error {
-	r, err := mutex.Acquire(mutex.Spec{Name: "pty-winpty-lock", Timeout: time.Second * 5, Delay: time.Millisecond * 3, Clock: &fakeClock{}})
+	r, err := mutex.Acquire(mutex.Spec{Name: "pty-winpty-lock", Timeout: time.Second * 15, Delay: time.Millisecond * 5, Clock: &fakeClock{}})
 	if err != nil {
 		return err
 	}
 	defer r.Release()
-	dllDir, err := c.findDll(true)
-	if err != nil {
-		return err
-	}
 	if dir, err = filepath.Abs(dir); err != nil {
 		return err
 	} else if err := os.Chdir(dir); err != nil {
@@ -56,7 +52,7 @@ func (c *console) Start(dir string, command []string) error {
 		return err
 	}
 	option := winpty.Options{
-		DllDir:      dllDir,
+		DllDir:      filepath.Join(os.TempDir(), "pty_winpty"),
 		Command:     cmd,
 		Dir:         dir,
 		Env:         c.env,
@@ -69,7 +65,7 @@ func (c *console) Start(dir string, command []string) error {
 
 	var pty *winpty.WinPTY
 	if pty, err = winpty.OpenWithOptions(option); err != nil {
-		if option.DllDir, err = c.findDll(false); err != nil {
+		if option.DllDir, err = c.findDll(); err != nil {
 			return err
 		}
 		if pty, err = winpty.OpenWithOptions(option); err != nil {
@@ -107,19 +103,16 @@ func (f *fakeClock) Now() time.Time {
 	return time.Now()
 }
 
-func (c *console) findDll(SkipExistFile bool) (string, error) {
+func (c *console) findDll() (string, error) {
 	dllDir := filepath.Join(os.TempDir(), "pty_winpty")
 
 	if err := os.MkdirAll(dllDir, os.ModePerm); err != nil {
 		return "", err
 	}
-	if err := utils.UnzipWithFile(bytes.NewReader(winpty_zip), dllDir, utils.UnzipCfg{
-		CoderTypes:    utils.T_UTF8,
-		SkipExistFile: SkipExistFile,
-	}); err != nil {
-		return "", err
-	}
-	return dllDir, nil
+
+	return dllDir, utils.UnzipWithFile(bytes.NewReader(winpty_zip), dllDir, utils.UnzipCfg{
+		CoderTypes: utils.T_UTF8,
+	})
 }
 
 // set pty window size

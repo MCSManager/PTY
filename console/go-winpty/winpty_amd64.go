@@ -10,9 +10,12 @@ import (
 )
 
 func createAgentCfg(flags uint64) (uintptr, error) {
+	err := winpty_config_new.Find()
+	if err != nil {
+		return 0, err
+	}
 	var errorPtr uintptr
 	defer winpty_error_free.Call(errorPtr)
-
 	winptyConfigT, _, _ := winpty_config_new.Call(uintptr(flags), uintptr(unsafe.Pointer(errorPtr)))
 	if winptyConfigT == uintptr(0) {
 		return 0, fmt.Errorf("unable to create agent config, %s", GetErrorMessage(errorPtr))
