@@ -6,9 +6,10 @@ require (
 	github.com/creack/pty v1.1.18
 	github.com/juju/mutex/v2 v2.0.0
 	github.com/klauspost/compress v1.16.0
-	github.com/mattn/go-colorable v0.1.13
 	github.com/mholt/archiver/v4 v4.0.0-alpha.7.0.20230223155640-de8cf229f727
 	github.com/shirou/gopsutil/v3 v3.23.1
+	github.com/zijiren233/go-colorable v0.0.0-20230304035935-641eddfc7ecf
+	golang.org/x/term v0.5.0
 	golang.org/x/text v0.7.0
 )
 

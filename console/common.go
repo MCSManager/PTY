@@ -11,7 +11,6 @@ import (
 
 	"github.com/MCSManager/pty/console/iface"
 	"github.com/MCSManager/pty/utils"
-	"github.com/mattn/go-colorable"
 )
 
 var (
@@ -24,14 +23,6 @@ type Console iface.Console
 // Create a new pty
 func New(coder utils.CoderType) Console {
 	return newNative(coder, 50, 50)
-}
-
-func Colorable(file *os.File) io.Writer {
-	return colorable.NewColorable(file)
-}
-
-func NonColorable(w io.Writer) io.Writer {
-	return colorable.NewNonColorable(w)
 }
 
 // Create a new pty and initialize the size

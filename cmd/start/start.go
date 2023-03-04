@@ -11,6 +11,8 @@ import (
 
 	pty "github.com/MCSManager/pty/console"
 	"github.com/MCSManager/pty/utils"
+	"github.com/zijiren233/go-colorable"
+	"golang.org/x/term"
 )
 
 var (
@@ -30,7 +32,7 @@ func init() {
 		flag.StringVar(&cmd, "cmd", "[\"sh\"]", "command")
 	}
 
-	flag.BoolVar(&colorAble, "color", false, "colorable (default false)")
+	flag.BoolVar(&colorAble, "color", true, "colorable (default true)")
 	flag.BoolVar(&skipExistFile, "s", false, "Skip Exist File (default false)")
 	flag.BoolVar(&exhaustive, "e", false, "Zip Exhaustive (default false)")
 	flag.StringVar(&coder, "coder", "auto", "Coder")
@@ -97,25 +99,34 @@ func runPTY() {
 }
 
 func handleStdIO(c pty.Console) {
-	go io.Copy(c.StdIn(), os.Stdin)
-	if runtime.GOOS == "windows" && c.StdErr() != nil {
-		var stdErr io.Writer
-		if colorAble {
-			stdErr = pty.Colorable(os.Stderr)
-		} else {
-			stdErr = pty.NonColorable(os.Stderr)
+	if colorable.IsReaderTerminal(os.Stdin) {
+		oldState, err := term.MakeRaw(int(os.Stdin.Fd()))
+		if err != nil {
+			panic(err)
 		}
-		go io.Copy(stdErr, c.StdErr())
+		defer func() { _ = term.Restore(int(os.Stdin.Fd()), oldState) }()
+		go func() { _, _ = io.Copy(c.StdIn(), os.Stdin) }()
+	} else {
+		go io.Copy(c.StdIn(), os.Stdin)
+	}
+	if runtime.GOOS == "windows" && c.StdErr() != nil {
+		var stdErr io.Reader
+		if colorAble {
+			stdErr = c.StdErr()
+		} else {
+			stdErr = colorable.NewNonColorableReader(c.StdErr())
+		}
+		go io.Copy(colorable.NewColorableStderr(), stdErr)
 	}
 	handleStdOut(c)
 }
 
 func handleStdOut(c pty.Console) {
-	var stdout io.Writer
+	var stdOut io.Reader
 	if colorAble {
-		stdout = pty.Colorable(os.Stdout)
+		stdOut = c.StdOut()
 	} else {
-		stdout = pty.NonColorable(os.Stdout)
+		stdOut = colorable.NewNonColorableReader(c.StdOut())
 	}
-	io.Copy(stdout, c.StdOut())
+	io.Copy(colorable.NewColorableStdout(), stdOut)
 }
