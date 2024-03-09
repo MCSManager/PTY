@@ -25,3 +25,5 @@ cache/
 server/
 tmp/
 main
+
+.DS_Store

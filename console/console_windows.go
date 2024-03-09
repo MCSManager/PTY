@@ -1,13 +1,14 @@
 package console
 
 import (
-	"bytes"
+	"embed"
 	_ "embed"
 	"fmt"
 	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/MCSManager/pty/console/go-winpty"
@@ -16,8 +17,8 @@ import (
 	mutex "github.com/juju/mutex/v2"
 )
 
-//go:embed winpty
-var winpty_zip []byte
+//go:embed all:winpty
+var winpty_embed embed.FS
 
 var _ iface.Console = (*console)(nil)
 
@@ -44,7 +45,12 @@ func (c *console) Start(dir string, command []string) error {
 	defer r.Release()
 	if dir, err = filepath.Abs(dir); err != nil {
 		return err
-	} else if err := os.Chdir(dir); err != nil {
+	}
+	if err := os.Chdir(dir); err != nil {
+		return err
+	}
+	dllDir, err := c.findDll()
+	if err != nil {
 		return err
 	}
 	cmd, err := c.buildCmd(command)
@@ -52,7 +58,7 @@ func (c *console) Start(dir string, command []string) error {
 		return err
 	}
 	option := winpty.Options{
-		DllDir:      filepath.Join(os.TempDir(), "pty_winpty"),
+		DllDir:      dllDir,
 		Command:     cmd,
 		Dir:         dir,
 		Env:         c.env,
@@ -65,12 +71,7 @@ func (c *console) Start(dir string, command []string) error {
 
 	var pty *winpty.WinPTY
 	if pty, err = winpty.OpenWithOptions(option); err != nil {
-		if option.DllDir, err = c.findDll(); err != nil {
-			return err
-		}
-		if pty, err = winpty.OpenWithOptions(option); err != nil {
-			return err
-		}
+		return err
 	}
 	c.stdIn = pty.Stdin
 	c.stdOut = pty.Stdout
@@ -79,16 +80,16 @@ func (c *console) Start(dir string, command []string) error {
 	return nil
 }
 
-// splice command
 func (c *console) buildCmd(args []string) (string, error) {
 	if len(args) == 0 {
 		return "", ErrInvalidCmd
 	}
-	var cmds = fmt.Sprintf("cmd /C chcp %s > nul & ", utils.CodePage(c.coder))
-	for _, v := range args {
-		cmds += v + ` `
-	}
-	return cmds[:len(cmds)-1], nil
+	var cmds = fmt.Sprintf(
+		"cmd /C chcp %s > nul & %s",
+		utils.CodePage(c.coder),
+		strings.Join(args, " "),
+	)
+	return cmds, nil
 }
 
 type fakeClock struct {
@@ -110,9 +111,39 @@ func (c *console) findDll() (string, error) {
 		return "", err
 	}
 
-	return dllDir, utils.UnzipWithFile(bytes.NewReader(winpty_zip), dllDir, utils.UnzipCfg{
-		CoderTypes: utils.T_UTF8,
-	})
+	dir, err := winpty_embed.ReadDir("winpty")
+	if err != nil {
+		return "", fmt.Errorf("read embed dir error: %w", err)
+	}
+
+	for _, de := range dir {
+		info, err := de.Info()
+		if err != nil {
+			return "", err
+		}
+		var exist bool
+		df, err := os.Stat(filepath.Join(dllDir, de.Name()))
+		if err != nil {
+			if !os.IsNotExist(err) {
+				return "", err
+			}
+		} else {
+			if !df.ModTime().Before(info.ModTime()) {
+				exist = true
+			}
+		}
+		if !exist {
+			data, err := winpty_embed.ReadFile(fmt.Sprintf("winpty/%s", de.Name()))
+			if err != nil {
+				return "", fmt.Errorf("read embed file error: %w", err)
+			}
+			if err := os.WriteFile(filepath.Join(dllDir, de.Name()), data, os.ModePerm); err != nil {
+				return "", fmt.Errorf("write file error: %w", err)
+			}
+		}
+	}
+
+	return dllDir, nil
 }
 
 // set pty window size
