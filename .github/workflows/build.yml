@@ -18,31 +18,31 @@ jobs:
 
             - name: Build
               run: |
-                  CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -trimpath-ldflags '-s -w --extldflags "-static -fpic"' -o pty_windows_amd64.exe
-                  CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath-ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_amd64
-                  CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath-ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_arm64
-                  CGO_ENABLED=0 GOOS=linux GOARCH=arm go build -trimpath-ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_arm
-                  CGO_ENABLED=0 GOOS=linux GOARCH=386 go build -trimpath-ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_386
-                  CGO_ENABLED=0 GOOS=linux GOARCH=mips go build -trimpath-ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_mips
-                  CGO_ENABLED=0 GOOS=linux GOARCH=mips64 go build -trimpath-ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_mips64
-                  CGO_ENABLED=0 GOOS=linux GOARCH=mips64le go build -trimpath-ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_mips64le
-                  CGO_ENABLED=0 GOOS=linux GOARCH=mipsle go build -trimpath-ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_mipsle
-                  CGO_ENABLED=0 GOOS=linux GOARCH=ppc64 go build -trimpath-ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_ppc64
-                  CGO_ENABLED=0 GOOS=linux GOARCH=ppc64le go build -trimpath-ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_ppc64le
-                  CGO_ENABLED=0 GOOS=linux GOARCH=riscv64 go build -trimpath-ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_riscv64
-                  CGO_ENABLED=0 GOOS=linux GOARCH=s390x go build -trimpath-ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_s390x
-                  CGO_ENABLED=0 GOOS=netbsd GOARCH=386 go build -trimpath-ldflags '-s -w --extldflags "-static -fpic"' -o pty_netbsd_386
-                  CGO_ENABLED=0 GOOS=netbsd GOARCH=amd64 go build -trimpath-ldflags '-s -w --extldflags "-static -fpic"' -o pty_netbsd_amd64
-                  CGO_ENABLED=0 GOOS=netbsd GOARCH=arm go build -trimpath-ldflags '-s -w --extldflags "-static -fpic"' -o pty_netbsd_arm
-                  CGO_ENABLED=0 GOOS=netbsd GOARCH=arm64 go build -trimpath-ldflags '-s -w --extldflags "-static -fpic"' -o pty_netbsd_arm64
-                  CGO_ENABLED=0 GOOS=openbsd GOARCH=386 go build -trimpath-ldflags '-s -w --extldflags "-static -fpic"' -o pty_openbsd_386
-                  CGO_ENABLED=0 GOOS=openbsd GOARCH=amd64 go build -trimpath-ldflags '-s -w --extldflags "-static -fpic"' -o pty_openbsd_amd64
-                  CGO_ENABLED=0 GOOS=openbsd GOARCH=arm go build -trimpath-ldflags '-s -w --extldflags "-static -fpic"' -o pty_openbsd_arm
-                  CGO_ENABLED=0 GOOS=openbsd GOARCH=arm64 go build -trimpath-ldflags '-s -w --extldflags "-static -fpic"' -o pty_openbsd_arm64
-                  CGO_ENABLED=0 GOOS=freebsd GOARCH=386 go build -trimpath-ldflags '-s -w --extldflags "-static -fpic"' -o pty_freebsd_386
-                  CGO_ENABLED=0 GOOS=freebsd GOARCH=amd64 go build -trimpath-ldflags '-s -w --extldflags "-static -fpic"' -o pty_freebsd_amd64
-                  CGO_ENABLED=0 GOOS=freebsd GOARCH=arm go build -trimpath-ldflags '-s -w --extldflags "-static -fpic"' -o pty_freebsd_arm
-                  CGO_ENABLED=0 GOOS=freebsd GOARCH=arm64 go build -trimpath-ldflags '-s -w --extldflags "-static -fpic"' -o pty_freebsd_arm64
+                  CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_windows_amd64.exe
+                  CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_amd64
+                  CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_arm64
+                  CGO_ENABLED=0 GOOS=linux GOARCH=arm go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_arm
+                  CGO_ENABLED=0 GOOS=linux GOARCH=386 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_386
+                  CGO_ENABLED=0 GOOS=linux GOARCH=mips go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_mips
+                  CGO_ENABLED=0 GOOS=linux GOARCH=mips64 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_mips64
+                  CGO_ENABLED=0 GOOS=linux GOARCH=mips64le go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_mips64le
+                  CGO_ENABLED=0 GOOS=linux GOARCH=mipsle go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_mipsle
+                  CGO_ENABLED=0 GOOS=linux GOARCH=ppc64 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_ppc64
+                  CGO_ENABLED=0 GOOS=linux GOARCH=ppc64le go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_ppc64le
+                  CGO_ENABLED=0 GOOS=linux GOARCH=riscv64 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_riscv64
+                  CGO_ENABLED=0 GOOS=linux GOARCH=s390x go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_s390x
+                  CGO_ENABLED=0 GOOS=netbsd GOARCH=386 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_netbsd_386
+                  CGO_ENABLED=0 GOOS=netbsd GOARCH=amd64 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_netbsd_amd64
+                  CGO_ENABLED=0 GOOS=netbsd GOARCH=arm go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_netbsd_arm
+                  CGO_ENABLED=0 GOOS=netbsd GOARCH=arm64 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_netbsd_arm64
+                  CGO_ENABLED=0 GOOS=openbsd GOARCH=386 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_openbsd_386
+                  CGO_ENABLED=0 GOOS=openbsd GOARCH=amd64 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_openbsd_amd64
+                  CGO_ENABLED=0 GOOS=openbsd GOARCH=arm go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_openbsd_arm
+                  CGO_ENABLED=0 GOOS=openbsd GOARCH=arm64 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_openbsd_arm64
+                  CGO_ENABLED=0 GOOS=freebsd GOARCH=386 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_freebsd_386
+                  CGO_ENABLED=0 GOOS=freebsd GOARCH=amd64 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_freebsd_amd64
+                  CGO_ENABLED=0 GOOS=freebsd GOARCH=arm go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_freebsd_arm
+                  CGO_ENABLED=0 GOOS=freebsd GOARCH=arm64 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_freebsd_arm64
 
             - uses: "marvinpinto/action-automatic-releases@latest"
               with:
