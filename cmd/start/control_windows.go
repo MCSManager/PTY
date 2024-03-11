@@ -2,6 +2,7 @@ package start
 
 import (
 	"fmt"
+	"io"
 	"time"
 
 	pty "github.com/MCSManager/pty/console"
@@ -31,7 +32,7 @@ func runControl(fifo string, con pty.Console) error {
 		}
 		go func() {
 			defer conn.Close()
-			u := newConnUtils(conn, conn)
+			u := newConnUtils(conn, io.Discard)
 			_ = handleConn(u, con)
 		}()
 	}
@@ -42,6 +43,6 @@ func testWinResize(fifo string) error {
 	if err != nil {
 		return fmt.Errorf("open fifo error: %w", err)
 	}
-	u := newConnUtils(n, n)
+	u := newConnUtils(nil, n)
 	return testResize(u)
 }

@@ -5,6 +5,7 @@ package start
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"syscall"
 	"time"
@@ -36,7 +37,7 @@ func runControl(fifo string, con pty.Console) error {
 			return fmt.Errorf("open fifo error: %w", err)
 		}
 		defer f.Close()
-		u := newConnUtils(f, f)
+		u := newConnUtils(f, io.Discard)
 		_ = handleConn(u, con)
 	}
 }
@@ -47,6 +48,6 @@ func testUnixResize(fifo string) error {
 		return fmt.Errorf("open fifo error: %w", err)
 	}
 	defer n.Close()
-	u := newConnUtils(n, n)
+	u := newConnUtils(nil, n)
 	return testResize(u)
 }
