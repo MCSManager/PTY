@@ -55,8 +55,6 @@ htop
         command
   -coder string
         Coder (default "UTF-8")
-  -color
-        colorable (default false)
   -dir string
         command work path (default ".")
   -size string
