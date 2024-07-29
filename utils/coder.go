@@ -69,23 +69,39 @@ func CoderToType(types string) CoderType {
 	}
 }
 
-func DecoderReader(types CoderType, r io.Reader) *transform.Reader {
-	return transform.NewReader(r, newDeCoder(types))
+func DecoderReader(types CoderType, r io.Reader) io.Reader {
+	t := newDecoder(types)
+	if t == nil {
+		return r
+	}
+	return transform.NewReader(r, newDecoder(types))
 }
 
-func DecoderWriter(types CoderType, r io.Writer) *transform.Writer {
-	return transform.NewWriter(r, newDeCoder(types))
+func DecoderWriter(types CoderType, r io.Writer) io.Writer {
+	t := newDecoder(types)
+	if t == nil {
+		return r
+	}
+	return transform.NewWriter(r, t)
 }
 
-func EncoderReader(types CoderType, r io.Reader) *transform.Reader {
-	return transform.NewReader(r, newEeCoder(types))
+func EncoderReader(types CoderType, r io.Reader) io.Reader {
+	t := newEecoder(types)
+	if t == nil {
+		return r
+	}
+	return transform.NewReader(r, t)
 }
 
-func EncoderWriter(types CoderType, r io.Writer) *transform.Writer {
-	return transform.NewWriter(r, newEeCoder(types))
+func EncoderWriter(types CoderType, r io.Writer) io.Writer {
+	t := newEecoder(types)
+	if t == nil {
+		return r
+	}
+	return transform.NewWriter(r, t)
 }
 
-func newDeCoder(coder CoderType) *encoding.Decoder {
+func newDecoder(coder CoderType) *encoding.Decoder {
 	var decoder *encoding.Decoder
 	switch coder {
 	case T_GBK:
@@ -103,30 +119,28 @@ func newDeCoder(coder CoderType) *encoding.Decoder {
 	case T_UTF16_B:
 		decoder = unicode.UTF16(unicode.BigEndian, unicode.IgnoreBOM).NewDecoder()
 	default:
-		decoder = unicode.UTF8.NewDecoder()
 	}
 	return decoder
 }
 
-func newEeCoder(coder CoderType) *encoding.Encoder {
-	var decoder *encoding.Encoder
+func newEecoder(coder CoderType) *encoding.Encoder {
+	var encoder *encoding.Encoder
 	switch coder {
 	case T_GBK:
-		decoder = simplifiedchinese.GBK.NewEncoder()
+		encoder = simplifiedchinese.GBK.NewEncoder()
 	case T_Big5:
-		decoder = traditionalchinese.Big5.NewEncoder()
+		encoder = traditionalchinese.Big5.NewEncoder()
 	case T_ShiftJIS:
-		decoder = japanese.ShiftJIS.NewEncoder()
+		encoder = japanese.ShiftJIS.NewEncoder()
 	case T_EUCKR:
-		decoder = korean.EUCKR.NewEncoder()
+		encoder = korean.EUCKR.NewEncoder()
 	case T_GB18030:
-		decoder = simplifiedchinese.GB18030.NewEncoder()
+		encoder = simplifiedchinese.GB18030.NewEncoder()
 	case T_UTF16_L:
-		decoder = unicode.UTF16(unicode.LittleEndian, unicode.IgnoreBOM).NewEncoder()
+		encoder = unicode.UTF16(unicode.LittleEndian, unicode.IgnoreBOM).NewEncoder()
 	case T_UTF16_B:
-		decoder = unicode.UTF16(unicode.BigEndian, unicode.IgnoreBOM).NewEncoder()
+		encoder = unicode.UTF16(unicode.BigEndian, unicode.IgnoreBOM).NewEncoder()
 	default:
-		decoder = unicode.UTF8.NewEncoder()
 	}
-	return decoder
+	return encoder
 }
