@@ -93,12 +93,12 @@ func handleStdIO(c pty.Console) error {
 	if runtime.GOOS == "windows" && c.StdErr() != nil {
 		go func() { _, _ = io.Copy(colorable.NewColorableStderr(), c.StdErr()) }()
 	}
-	handleStdOut(c)
-	return nil
-}
-
-func handleStdOut(c pty.Console) {
+	_, ok := c.StdErr().(io.WriterTo)
+	if !ok {
+		fmt.Println("StdErr is not a WriterTo")
+	}
 	_, _ = io.Copy(colorable.NewColorableStdout(), c.StdOut())
+	return nil
 }
 
 const (
