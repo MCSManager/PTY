@@ -18,8 +18,8 @@ jobs:
 
       - name: Build
         run: |
-          CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_windows_amd64.exe
-          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_amd64
+          CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_win32_x64.exe
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_x64
           CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_arm64
           CGO_ENABLED=0 GOOS=linux GOARCH=arm go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_arm
           CGO_ENABLED=0 GOOS=linux GOARCH=386 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_386
@@ -32,15 +32,15 @@ jobs:
           CGO_ENABLED=0 GOOS=linux GOARCH=riscv64 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_riscv64
           CGO_ENABLED=0 GOOS=linux GOARCH=s390x go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_linux_s390x
           CGO_ENABLED=0 GOOS=netbsd GOARCH=386 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_netbsd_386
-          CGO_ENABLED=0 GOOS=netbsd GOARCH=amd64 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_netbsd_amd64
+          CGO_ENABLED=0 GOOS=netbsd GOARCH=amd64 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_netbsd_x64
           CGO_ENABLED=0 GOOS=netbsd GOARCH=arm go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_netbsd_arm
           CGO_ENABLED=0 GOOS=netbsd GOARCH=arm64 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_netbsd_arm64
           CGO_ENABLED=0 GOOS=openbsd GOARCH=386 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_openbsd_386
-          CGO_ENABLED=0 GOOS=openbsd GOARCH=amd64 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_openbsd_amd64
+          CGO_ENABLED=0 GOOS=openbsd GOARCH=amd64 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_openbsd_x64
           CGO_ENABLED=0 GOOS=openbsd GOARCH=arm go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_openbsd_arm
           CGO_ENABLED=0 GOOS=openbsd GOARCH=arm64 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_openbsd_arm64
           CGO_ENABLED=0 GOOS=freebsd GOARCH=386 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_freebsd_386
-          CGO_ENABLED=0 GOOS=freebsd GOARCH=amd64 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_freebsd_amd64
+          CGO_ENABLED=0 GOOS=freebsd GOARCH=amd64 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_freebsd_x64
           CGO_ENABLED=0 GOOS=freebsd GOARCH=arm go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_freebsd_arm
           CGO_ENABLED=0 GOOS=freebsd GOARCH=arm64 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_freebsd_arm64
 
@@ -51,8 +51,8 @@ jobs:
           title: Development Build
           prerelease: true
           files: |
-            pty_windows_amd64.exe
-            pty_linux_amd64
+            pty_win32_x64.exe
+            pty_linux_x64
             pty_linux_arm64
             pty_linux_arm
             pty_linux_386
@@ -65,14 +65,14 @@ jobs:
             pty_linux_riscv64
             pty_linux_s390x
             pty_netbsd_386
-            pty_netbsd_amd64
+            pty_netbsd_x64
             pty_netbsd_arm
             pty_netbsd_arm64
             pty_openbsd_386
-            pty_openbsd_amd64
+            pty_openbsd_x64
             pty_openbsd_arm
             pty_openbsd_arm64
             pty_freebsd_386
-            pty_freebsd_amd64
+            pty_freebsd_x64
             pty_freebsd_arm
             pty_freebsd_arm64
