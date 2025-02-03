@@ -43,6 +43,8 @@ jobs:
           CGO_ENABLED=0 GOOS=freebsd GOARCH=amd64 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_freebsd_x64
           CGO_ENABLED=0 GOOS=freebsd GOARCH=arm go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_freebsd_arm
           CGO_ENABLED=0 GOOS=freebsd GOARCH=arm64 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_freebsd_arm64
+          CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_darwin_x64
+          CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -trimpath -ldflags '-s -w --extldflags "-static -fpic"' -o pty_darwin_arm64
 
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
@@ -76,3 +78,5 @@ jobs:
             pty_freebsd_x64
             pty_freebsd_arm
             pty_freebsd_arm64
+            pty_darwin_x64
+            pty_darwin_arm64
